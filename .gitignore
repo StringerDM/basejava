@@ -2,6 +2,7 @@
 out
 *.iml
 log
+*.xml
 
 
 
