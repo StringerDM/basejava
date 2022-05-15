@@ -8,8 +8,9 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public class ArrayStorage {
+    protected static final int MAX_SIZE = 10000;
     private int size = 0;
-    private final Resume[] storage = new Resume[10000];
+    private final Resume[] storage = new Resume[MAX_SIZE];
 
     public void clear() {
         Arrays.fill(storage, 0, size, null);
@@ -17,7 +18,7 @@ public class ArrayStorage {
     }
 
     public void update(Resume resume) {
-        int index = check(resume.getUuid());
+        int index = checkIndex(resume.getUuid());
         if (index >= 0) {
             storage[index] = resume;
         } else {
@@ -26,21 +27,19 @@ public class ArrayStorage {
     }
 
     public void save(Resume resume) {
-        if (size > storage.length) {
+        int index = checkIndex(resume.getUuid());
+        if (size == MAX_SIZE) {
             System.out.println("Error: невозможно добавить резюме, хранилище переполнено");
-            return;
-        }
-        int index = check(resume.getUuid());
-        if (index < 0) {
+        } else if (index >= 0) {
+            System.out.println("Error: невозможно добавить, резюме " + resume.getUuid() + " существует");
+        } else {
             storage[size] = resume;
             size++;
-        } else {
-            System.out.println("Error: невозможно добавить, резюме " + resume.getUuid() + " существует");
         }
     }
 
     public Resume get(String uuid) {
-        int index = check(uuid);
+        int index = checkIndex(uuid);
         if (index < 0) {
             System.out.println("Error: невозможно получить, резюме " + uuid + " не найдено");
             return null;
@@ -49,11 +48,12 @@ public class ArrayStorage {
     }
 
     public void delete(String uuid) {
-        int index = check(uuid);
+        int index = checkIndex(uuid);
         if (index >= 0) {
-            storage[index] = storage[size - 1];
-            storage[size - 1] = null;
             size--;
+            storage[index] = storage[size];
+            storage[size] = null;
+
         } else {
             System.out.println("Error: невозможно удалить, резюме " + uuid + " не найдено");
         }
@@ -70,7 +70,7 @@ public class ArrayStorage {
         return size;
     }
 
-    private int check(String uuid) {
+    private int checkIndex(String uuid) {
         for (int i = 0; i < size; i++) {
             if (storage[i].getUuid().equals(uuid)) {
                 return i;
