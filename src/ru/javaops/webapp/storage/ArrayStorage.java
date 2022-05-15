@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * Array based storage for Resumes
  */
-public class ArrayStorage {
+public class ArrayStorage extends AbstractArrayStorage {
     protected static final int MAX_SIZE = 10000;
     private int size = 0;
     private final Resume[] storage = new Resume[MAX_SIZE];
@@ -18,7 +18,7 @@ public class ArrayStorage {
     }
 
     public void update(Resume resume) {
-        int index = checkIndex(resume.getUuid());
+        int index = getIndex(resume.getUuid());
         if (index >= 0) {
             storage[index] = resume;
         } else {
@@ -27,8 +27,8 @@ public class ArrayStorage {
     }
 
     public void save(Resume resume) {
-        int index = checkIndex(resume.getUuid());
-        if (size == MAX_SIZE) {
+        int index = getIndex(resume.getUuid());
+        if (size >= MAX_SIZE) {
             System.out.println("Error: невозможно добавить резюме, хранилище переполнено");
         } else if (index >= 0) {
             System.out.println("Error: невозможно добавить, резюме " + resume.getUuid() + " существует");
@@ -38,17 +38,8 @@ public class ArrayStorage {
         }
     }
 
-    public Resume get(String uuid) {
-        int index = checkIndex(uuid);
-        if (index < 0) {
-            System.out.println("Error: невозможно получить, резюме " + uuid + " не найдено");
-            return null;
-        }
-        return storage[index];
-    }
-
     public void delete(String uuid) {
-        int index = checkIndex(uuid);
+        int index = getIndex(uuid);
         if (index >= 0) {
             size--;
             storage[index] = storage[size];
@@ -66,11 +57,7 @@ public class ArrayStorage {
         return Arrays.copyOf(storage, size);
     }
 
-    public int size() {
-        return size;
-    }
-
-    private int checkIndex(String uuid) {
+    protected int getIndex(String uuid) {
         for (int i = 0; i < size; i++) {
             if (storage[i].getUuid().equals(uuid)) {
                 return i;
