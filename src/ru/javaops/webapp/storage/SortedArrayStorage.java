@@ -2,10 +2,9 @@ package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.model.Resume;
 
-/**
- * Array based storage for Resumes
- */
-public class ArrayStorage extends AbstractArrayStorage {
+import java.util.Arrays;
+
+public class SortedArrayStorage extends AbstractArrayStorage {
 
     @Override
     public void save(Resume r) {
@@ -15,8 +14,13 @@ public class ArrayStorage extends AbstractArrayStorage {
         } else if (index >= 0) {
             System.out.println("Resume " + r.getUuid() + " already exist");
         } else {
-            storage[size] = r;
+            index = Math.abs(index) - 1;
+            if(size > 0 || storage[index] != null) {
+                System.arraycopy(storage, index, storage, index + 1, size - index);
+            }
+            storage[index] = r;
             size++;
+
         }
     }
 
@@ -24,21 +28,19 @@ public class ArrayStorage extends AbstractArrayStorage {
     public void delete(String uuid) {
         int index = getIndex(uuid);
         if (index >= 0) {
+            System.arraycopy(storage, index + 1, storage, index, size - (index + 1));
+            storage[size - 1] = null;
             size--;
-            storage[index] = storage[size];
-            storage[size] = null;
         } else {
             System.out.println("Unable to delete, resume " + uuid + " no found");
         }
+
     }
 
     @Override
     protected int getIndex(String uuid) {
-        for (int i = 0; i < size; i++) {
-            if (storage[i].getUuid().equals(uuid)) {
-                return i;
-            }
-        }
-        return -1;
+        Resume searchKey = new Resume();
+        searchKey.setUuid(uuid);
+        return Arrays.binarySearch(storage, 0, size, searchKey);
     }
 }
