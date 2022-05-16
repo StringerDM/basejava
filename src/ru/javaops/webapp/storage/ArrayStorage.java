@@ -2,8 +2,6 @@ package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.model.Resume;
 
-import java.util.Arrays;
-
 /**
  * Array based storage for Resumes
  */
@@ -13,9 +11,9 @@ public class ArrayStorage extends AbstractArrayStorage {
     public void save(Resume r) {
         int index = getIndex(r.getUuid());
         if (size >= STORAGE_LIMIT) {
-            System.out.println("Error: невозможно добавить резюме, хранилище переполнено");
+            System.out.println("Unable to add resume " + r.getUuid() + ", storage is full");
         } else if (index >= 0) {
-            System.out.println("Error: невозможно добавить, резюме " + r.getUuid() + " существует");
+            System.out.println("Resume " + r.getUuid() + " already exist");
         } else {
             storage[size] = r;
             size++;
@@ -29,18 +27,9 @@ public class ArrayStorage extends AbstractArrayStorage {
             size--;
             storage[index] = storage[size];
             storage[size] = null;
-
         } else {
-            System.out.println("Error: невозможно удалить, резюме " + uuid + " не найдено");
+            System.out.println("Unable to delete, resume " + uuid + " no found");
         }
-    }
-
-    /**
-     * @return array, contains only Resumes in storage (without null)
-     */
-    @Override
-    public Resume[] getAll() {
-        return Arrays.copyOf(storage, size);
     }
 
     @Override

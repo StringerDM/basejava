@@ -6,41 +6,35 @@ import java.util.Arrays;
 
 public class SortedArrayStorage extends AbstractArrayStorage {
 
-
     @Override
     public void save(Resume r) {
-        //TODO adapt to sortedArray
         int index = getIndex(r.getUuid());
         if (size >= STORAGE_LIMIT) {
-            System.out.println("Error: невозможно добавить резюме, хранилище переполнено");
+            System.out.println("Unable to add resume " + r.getUuid() + ", storage is full");
         } else if (index >= 0) {
-            System.out.println("Error: невозможно добавить, резюме " + r.getUuid() + " существует");
+            System.out.println("Resume " + r.getUuid() + " already exist");
         } else {
-//            storage[size] = r;
-
+            index = Math.abs(index) - 1;
+            if(size > 0 || storage[index] != null) {
+                System.arraycopy(storage, index, storage, index + 1, size - index);
+            }
+            storage[index] = r;
             size++;
+
         }
     }
 
     @Override
     public void delete(String uuid) {
-        //TODO adapt to sortedArray
-
         int index = getIndex(uuid);
         if (index >= 0) {
-//            size--;
-//            storage[index] = storage[size];
-//            storage[size] = null;
-
+            System.arraycopy(storage, index + 1, storage, index, size - (index + 1));
+            storage[size - 1] = null;
+            size--;
         } else {
-            System.out.println("Error: невозможно удалить, резюме " + uuid + " не найдено");
+            System.out.println("Unable to delete, resume " + uuid + " no found");
         }
 
-    }
-
-    @Override
-    public Resume[] getAll() {
-        return new Resume[0];
     }
 
     @Override
