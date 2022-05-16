@@ -8,36 +8,21 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public class ArrayStorage extends AbstractArrayStorage {
-    protected static final int MAX_SIZE = 10000;
-    private int size = 0;
-    private final Resume[] storage = new Resume[MAX_SIZE];
 
-    public void clear() {
-        Arrays.fill(storage, 0, size, null);
-        size = 0;
-    }
-
-    public void update(Resume resume) {
-        int index = getIndex(resume.getUuid());
-        if (index >= 0) {
-            storage[index] = resume;
-        } else {
-            System.out.println("Error: невозможно обновить, резюме " + resume.getUuid() + " не найдено");
-        }
-    }
-
-    public void save(Resume resume) {
-        int index = getIndex(resume.getUuid());
-        if (size >= MAX_SIZE) {
+    @Override
+    public void save(Resume r) {
+        int index = getIndex(r.getUuid());
+        if (size >= STORAGE_LIMIT) {
             System.out.println("Error: невозможно добавить резюме, хранилище переполнено");
         } else if (index >= 0) {
-            System.out.println("Error: невозможно добавить, резюме " + resume.getUuid() + " существует");
+            System.out.println("Error: невозможно добавить, резюме " + r.getUuid() + " существует");
         } else {
-            storage[size] = resume;
+            storage[size] = r;
             size++;
         }
     }
 
+    @Override
     public void delete(String uuid) {
         int index = getIndex(uuid);
         if (index >= 0) {
@@ -53,10 +38,12 @@ public class ArrayStorage extends AbstractArrayStorage {
     /**
      * @return array, contains only Resumes in storage (without null)
      */
+    @Override
     public Resume[] getAll() {
         return Arrays.copyOf(storage, size);
     }
 
+    @Override
     protected int getIndex(String uuid) {
         for (int i = 0; i < size; i++) {
             if (storage[i].getUuid().equals(uuid)) {
