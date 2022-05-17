@@ -21,4 +21,10 @@ public class ArrayStorage extends AbstractArrayStorage {
     protected void insertResume(Resume r, int index) {
         storage[size] = r;
     }
+
+    @Override
+    protected void withdrawResume(int index) {
+        storage[index] = storage[size];
+        storage[size] = null;
+    }
 }
