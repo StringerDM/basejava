@@ -3,7 +3,7 @@ package ru.javaops.webapp.model;
 /**
  * Initial resume class
  */
-public class Resume implements Comparable<Resume>{
+public class Resume implements Comparable<Resume> {
 
     // Unique identifier
     private String uuid;

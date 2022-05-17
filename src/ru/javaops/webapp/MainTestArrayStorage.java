@@ -7,7 +7,7 @@ import ru.javaops.webapp.storage.*;
  * Test for your ru.javaops.webapp.storage.ArrayStorage implementation
  */
 public class MainTestArrayStorage {
-//    static final ArrayStorage ARRAY_STORAGE = new ArrayStorage();
+//    static final Storage ARRAY_STORAGE = new ArrayStorage();
     static final Storage ARRAY_STORAGE = new SortedArrayStorage();
 
     public static void main(String[] args) {

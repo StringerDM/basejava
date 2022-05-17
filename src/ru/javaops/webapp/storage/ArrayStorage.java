@@ -8,31 +8,6 @@ import ru.javaops.webapp.model.Resume;
 public class ArrayStorage extends AbstractArrayStorage {
 
     @Override
-    public void save(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (size >= STORAGE_LIMIT) {
-            System.out.println("Unable to add resume " + r.getUuid() + ", storage is full");
-        } else if (index >= 0) {
-            System.out.println("Resume " + r.getUuid() + " already exist");
-        } else {
-            storage[size] = r;
-            size++;
-        }
-    }
-
-    @Override
-    public void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (index >= 0) {
-            size--;
-            storage[index] = storage[size];
-            storage[size] = null;
-        } else {
-            System.out.println("Unable to delete, resume " + uuid + " no found");
-        }
-    }
-
-    @Override
     protected int getIndex(String uuid) {
         for (int i = 0; i < size; i++) {
             if (storage[i].getUuid().equals(uuid)) {
@@ -40,5 +15,10 @@ public class ArrayStorage extends AbstractArrayStorage {
             }
         }
         return -1;
+    }
+
+    @Override
+    protected void insertResume(Resume r, int index) {
+        storage[size] = r;
     }
 }
