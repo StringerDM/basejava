@@ -1,5 +1,8 @@
 package ru.javaops.webapp.storage;
 
+import ru.javaops.webapp.exception.ExistStorageException;
+import ru.javaops.webapp.exception.NotExistStorageException;
+import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
 
 import java.util.Arrays;
@@ -23,16 +26,16 @@ public abstract class AbstractArrayStorage implements Storage {
         if (index >= 0) {
             storage[index] = r;
         } else {
-            System.out.println("Resume " + r.getUuid() + " not found");
+            throw new NotExistStorageException(r.getUuid());
         }
     }
 
     public final void save(Resume r) {
         int index = getIndex(r.getUuid());
         if (size >= STORAGE_LIMIT) {
-            System.out.println("Unable to add resume " + r.getUuid() + ", storage is full");
+            throw new StorageException("Storage overflow", r.getUuid());
         } else if (index >= 0) {
-            System.out.println("Resume " + r.getUuid() + " already exist");
+            throw new ExistStorageException(r.getUuid());
         } else {
             doSave(r, index);
             size++;
@@ -42,8 +45,7 @@ public abstract class AbstractArrayStorage implements Storage {
     public final Resume get(String uuid) {
         int index = getIndex(uuid);
         if (index < 0) {
-            System.out.println("Resume " + uuid + " not exist");
-            return null;
+            throw new NotExistStorageException(uuid);
         }
         return storage[index];
     }
@@ -55,7 +57,7 @@ public abstract class AbstractArrayStorage implements Storage {
             doDelete(index);
             storage[size] = null;
         } else {
-            System.out.println("Unable to delete, resume " + uuid + " no found");
+            throw new NotExistStorageException(uuid);
         }
     }
 
