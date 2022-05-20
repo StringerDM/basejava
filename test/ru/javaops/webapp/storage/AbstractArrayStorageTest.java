@@ -6,13 +6,15 @@ import org.junit.Test;
 import ru.javaops.webapp.exception.*;
 import ru.javaops.webapp.model.Resume;
 
-import java.lang.reflect.Field;
+import static ru.javaops.webapp.storage.AbstractArrayStorage.STORAGE_LIMIT;
 
 public abstract class AbstractArrayStorageTest {
     private final Storage storage;
-    private static final String UUID_1 = "uuid1";
-    private static final String UUID_2 = "uuid2";
-    private static final String UUID_3 = "uuid3";
+    private static final Resume RESUME_1 = new Resume("uuid1");
+    private static final Resume RESUME_2 = new Resume("uuid2");
+    private static final Resume RESUME_3 = new Resume("uuid3");
+    private static final Resume RESUME_4 = new Resume("uuid4");
+    private static final String UUID_NOT_EXIST = "dummy";
 
     public AbstractArrayStorageTest(Storage storage) {
         this.storage = storage;
@@ -21,103 +23,97 @@ public abstract class AbstractArrayStorageTest {
     @Before
     public void setUp() {
         storage.clear();
-        storage.save(new Resume(UUID_1));
-        storage.save(new Resume(UUID_2));
-        storage.save(new Resume(UUID_3));
+        storage.save(RESUME_1);
+        storage.save(RESUME_2);
+        storage.save(RESUME_3);
     }
 
     @Test
-    public void clear() throws NoSuchFieldException, IllegalAccessException {
+    public void clear() {
         storage.clear();
-        Assert.assertEquals(0, storage.size());
-
-        Field field = storage.getClass().getSuperclass().getDeclaredField("storage");
-        field.setAccessible(true);
-        Resume[] resumes = (Resume[]) field.get(storage);
-        for (int i = 0; i < 3; i++) {
-            Assert.assertNull(resumes[i]);
-        }
+        assertSize(0);
+        Assert.assertArrayEquals(new Resume[0], storage.getAll());
     }
 
     @Test
     public void update() {
-        Resume r = new Resume(UUID_1);
-        storage.update(r);
-        Assert.assertSame(r, storage.get(UUID_1));
+        storage.update(RESUME_1);
+        assertGet(RESUME_1);
     }
 
     @Test(expected = NotExistStorageException.class)
     public void updateNotExist() {
-        storage.update(new Resume("dummy"));
+        storage.update(new Resume(UUID_NOT_EXIST));
     }
 
     @Test
     public void save() {
-        Resume r = new Resume("UUID_4");
-        storage.save(r);
-        Assert.assertEquals(4, storage.size());
-        Assert.assertSame(r, storage.get("UUID_4"));
+        storage.save(RESUME_4);
+        assertSize(4);
+        assertGet(RESUME_4);
     }
 
     @Test(expected = ExistStorageException.class)
     public void saveExist() {
-        storage.save(new Resume(UUID_3));
+        storage.save(RESUME_3);
     }
 
     @Test(expected = StorageException.class)
-    public void saveOverflow() {
+    public void saveStorageOverflow() {
         try {
-            for (int i = storage.size(); i < 10000; i++) {
-                Resume r = new Resume();
-                storage.save(r);
+            for (int i = storage.size(); i < STORAGE_LIMIT; i++) {
+                storage.save(new Resume());
             }
         } catch (Exception e) {
             Assert.fail("Not expected storage overflow");
         }
-        Resume r1 = new Resume();
-        storage.save(r1);
+        storage.save(new Resume());
     }
 
     @Test
     public void get() {
-        Resume resume = new Resume(UUID_2);
-        Assert.assertEquals(resume, storage.get(UUID_2));
+        assertGet(RESUME_2);
+    }
+
+    public void assertGet(Resume r) {
+        Assert.assertEquals(r, storage.get(r.getUuid()));
     }
 
     @Test(expected = NotExistStorageException.class)
     public void getNotExist() {
-        storage.get("dummy");
+        storage.get(UUID_NOT_EXIST);
     }
 
     @Test(expected = NotExistStorageException.class)
-    public void delete() throws IllegalAccessException, NoSuchFieldException {
-        storage.delete(UUID_3);
-        Assert.assertEquals(2, storage.size());
-
-        Field field = storage.getClass().getSuperclass().getDeclaredField("storage");
-        field.setAccessible(true);
-        Resume[] resumes = (Resume[]) field.get(storage);
-        Assert.assertNull(resumes[2]);
-
-        storage.get(UUID_3);
+    public void delete() {
+        storage.delete(RESUME_3.getUuid());
+        assertSize(2);
+        assertGet(RESUME_3);
     }
 
     @Test(expected = NotExistStorageException.class)
     public void deleteNotExist() {
-        storage.delete("dummy");
+        storage.delete(UUID_NOT_EXIST);
     }
 
     @Test
     public void getAll() {
         Resume[] resumes = storage.getAll();
-        Assert.assertEquals(3, resumes.length);
-        Assert.assertEquals(resumes[0], storage.get(resumes[0].getUuid()));
-        Assert.assertEquals(resumes[1], storage.get(resumes[1].getUuid()));
-        Assert.assertEquals(resumes[2], storage.get(resumes[2].getUuid()));
+        assertSize(resumes.length);
+        Assert.assertEquals(RESUME_1, resumes[0]);
+        Assert.assertEquals(RESUME_2, resumes[1]);
+        Assert.assertEquals(RESUME_3, resumes[2]);
+        assertGet(resumes[0]);
+        assertGet(resumes[1]);
+        assertGet(resumes[2]);
     }
 
     @Test
     public void size() {
-        Assert.assertEquals(3, storage.size());
+        assertSize(3);
+    }
+
+    public void assertSize(int expectSize) {
+        Assert.assertEquals(expectSize, storage.size());
     }
 }
