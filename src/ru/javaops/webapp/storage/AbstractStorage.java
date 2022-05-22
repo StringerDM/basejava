@@ -1,57 +1,37 @@
 package ru.javaops.webapp.storage;
 
-import ru.javaops.webapp.exception.ExistStorageException;
-import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.model.Resume;
 
 public abstract class AbstractStorage implements Storage {
 
     public final void update(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (index >= 0) {
-            replaceItem(index, r);
-        } else {
-            throw new NotExistStorageException(r.getUuid());
-        }
+        doUpdate(checkNotExist(r.getUuid()), r);
     }
 
     public final void save(Resume r) {
-        int index = getIndex(r.getUuid());
-        checkOverflow(r);
-        if (index >= 0) {
-            throw new ExistStorageException(r.getUuid());
-        } else {
-            doSave(r, index);
-        }
+        doSave(checkExist(r.getUuid()), r);
     }
 
     public final Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        }
-        return getResume(index);
+        return doGet(checkNotExist(uuid));
     }
 
     public final void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (index >= 0) {
-            doDelete(index);
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+        doDelete(checkNotExist(uuid));
     }
 
-    protected abstract int getIndex(String uuid);
+    protected abstract Object getSearchKey(String searchKey);
 
-    protected abstract void doSave(Resume r, int index);
+    protected abstract void doSave(Object key, Resume r);
 
-    protected abstract void doDelete(int index);
+    protected abstract void doDelete(Object key);
 
-    protected abstract void replaceItem(int index, Resume r);
+    protected abstract void doUpdate(Object key, Resume r);
 
-    protected abstract void checkOverflow(Resume r);
+    protected abstract Resume doGet(Object key);
 
-    protected abstract Resume getResume(int index);
+    protected abstract Object checkExist(String uuid);
+
+    protected abstract Object checkNotExist(String uuid);
 
 }

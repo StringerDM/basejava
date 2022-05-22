@@ -1,16 +1,14 @@
 package ru.javaops.webapp.storage;
 
-import ru.javaops.webapp.model.Resume;
-
 /**
  * Array based storage for Resumes
  */
 public class ArrayStorage extends AbstractArrayStorage {
 
     @Override
-    protected int getIndex(String uuid) {
+    protected Object getSearchKey(String searchKey) {
         for (int i = 0; i < size; i++) {
-            if (storage[i].getUuid().equals(uuid)) {
+            if (storage[i].getUuid().equals(searchKey)) {
                 return i;
             }
         }
@@ -18,15 +16,12 @@ public class ArrayStorage extends AbstractArrayStorage {
     }
 
     @Override
-    protected void doSave(Resume r, int index) {
-        storage[size] = r;
-        size++;
+    protected int insertResume(int index) {
+        return size;
     }
 
     @Override
-    protected void doDelete(int index) {
-        size--;
+    protected void deleteResume(int index) {
         storage[index] = storage[size];
-        storage[size] = null;
     }
 }

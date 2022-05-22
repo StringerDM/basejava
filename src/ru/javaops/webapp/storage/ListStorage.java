@@ -1,5 +1,7 @@
 package ru.javaops.webapp.storage;
 
+import ru.javaops.webapp.exception.ExistStorageException;
+import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.model.Resume;
 
 import java.util.ArrayList;
@@ -25,39 +27,51 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected int getIndex(String uuid) {
-        Resume resume = null;
+    protected Object getSearchKey(String searchKey) {
         for (Resume r : storage) {
-            if (uuid.equals(r.getUuid())) {
-                resume = r;
-                break;
+            if (r.getUuid().equals(searchKey)) {
+                return storage.indexOf(r);
             }
         }
-        return storage.indexOf(resume);
+        return -1;
     }
 
     @Override
-    protected void doSave(Resume r, int index) {
+    protected void doSave(Object key, Resume r) {
         storage.add(r);
     }
 
     @Override
-    protected void doDelete(int index) {
-        storage.remove(index);
+    protected void doDelete(Object key) {
+        storage.remove((int) key);
     }
 
     @Override
-    protected void replaceItem(int index, Resume r) {
-        doDelete(index);
-        doSave(r, 0);
+    protected void doUpdate(Object key, Resume r) {
+        doDelete(key);
+        doSave(key, r);
     }
 
     @Override
-    protected void checkOverflow(Resume r) {
+    protected Resume doGet(Object key) {
+        return storage.get((Integer) key);
     }
 
     @Override
-    protected Resume getResume(int index) {
-        return storage.get(index);
+    protected Object checkExist(String uuid) {
+        int index = (int) getSearchKey(uuid);
+        if (index >= 0) {
+            throw new ExistStorageException(uuid);
+        }
+        return index;
+    }
+
+    @Override
+    protected Object checkNotExist(String uuid) {
+        int index = (int) getSearchKey(uuid);
+        if (index < 0) {
+            throw new NotExistStorageException(uuid);
+        }
+        return index;
     }
 }

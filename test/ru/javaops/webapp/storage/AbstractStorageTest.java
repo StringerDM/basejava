@@ -8,6 +8,8 @@ import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 import static ru.javaops.webapp.storage.AbstractArrayStorage.STORAGE_LIMIT;
 
@@ -98,6 +100,7 @@ public abstract class AbstractStorageTest {
     public void getAll() {
         Resume[] resumes = storage.getAll();
         assertSize(resumes.length);
+        Arrays.sort(resumes);
         Assert.assertArrayEquals(new Resume[]{RESUME_1, RESUME_2, RESUME_3}, resumes);
         assertGet(resumes[0]);
         assertGet(resumes[1]);
