@@ -1,23 +1,25 @@
 package ru.javaops.webapp.storage;
 
+import ru.javaops.webapp.exception.ExistStorageException;
+import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.model.Resume;
 
 public abstract class AbstractStorage implements Storage {
 
     public final void update(Resume r) {
-        doUpdate(checkNotExist(r.getUuid()), r);
+        doUpdate(getNotExistKey(r.getUuid()), r);
     }
 
     public final void save(Resume r) {
-        doSave(checkExist(r.getUuid()), r);
+        doSave(getExistKey(r.getUuid()), r);
     }
 
     public final Resume get(String uuid) {
-        return doGet(checkNotExist(uuid));
+        return doGet(getNotExistKey(uuid));
     }
 
     public final void delete(String uuid) {
-        doDelete(checkNotExist(uuid));
+        doDelete(getNotExistKey(uuid));
     }
 
     protected abstract Object getSearchKey(String searchKey);
@@ -30,8 +32,22 @@ public abstract class AbstractStorage implements Storage {
 
     protected abstract Resume doGet(Object key);
 
-    protected abstract Object checkExist(String uuid);
+    protected Object getExistKey(String uuid) {
+        Object key = getSearchKey(uuid);
+        if (isExist(key)) {
+            throw new ExistStorageException(uuid);
+        }
+        return key;
+    }
 
-    protected abstract Object checkNotExist(String uuid);
+    protected Object getNotExistKey(String uuid) {
+        Object key = getSearchKey(uuid);
+        if (!isExist(key)) {
+            throw new NotExistStorageException(uuid);
+        }
+        return key;
+    }
+
+    protected abstract boolean isExist(Object key);
 
 }

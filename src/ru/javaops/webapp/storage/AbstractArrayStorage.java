@@ -1,7 +1,5 @@
 package ru.javaops.webapp.storage;
 
-import ru.javaops.webapp.exception.ExistStorageException;
-import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
 
@@ -62,25 +60,12 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         return storage[(int) key];
     }
 
-    @Override
-    protected Object checkExist(String uuid) {
-        int index = (int) getSearchKey(uuid);
-        if (index >= 0) {
-            throw new ExistStorageException(uuid);
-        }
-        return index;
-    }
-
-    @Override
-    protected Object checkNotExist(String uuid) {
-        int index = (int) getSearchKey(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        }
-        return index;
-    }
-
     protected abstract int insertResume(int index);
 
     protected abstract void deleteResume(int index);
+
+    @Override
+    protected boolean isExist(Object key) {
+        return (int) key >= 0;
+    }
 }

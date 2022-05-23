@@ -1,7 +1,5 @@
 package ru.javaops.webapp.storage;
 
-import ru.javaops.webapp.exception.ExistStorageException;
-import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.model.Resume;
 
 import java.util.ArrayList;
@@ -9,7 +7,7 @@ import java.util.List;
 
 public class ListStorage extends AbstractStorage {
 
-    List<Resume> storage = new ArrayList<>();
+    private final List<Resume> storage = new ArrayList<>();
 
     @Override
     public void clear() {
@@ -58,20 +56,7 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected Object checkExist(String uuid) {
-        int index = (int) getSearchKey(uuid);
-        if (index >= 0) {
-            throw new ExistStorageException(uuid);
-        }
-        return index;
-    }
-
-    @Override
-    protected Object checkNotExist(String uuid) {
-        int index = (int) getSearchKey(uuid);
-        if (index < 0) {
-            throw new NotExistStorageException(uuid);
-        }
-        return index;
+    protected boolean isExist(Object key) {
+        return (int) key >= 0;
     }
 }
