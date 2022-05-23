@@ -1,9 +1,8 @@
 package ru.javaops.webapp.storage;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import ru.javaops.webapp.exception.*;
+import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
 
 import static ru.javaops.webapp.storage.AbstractArrayStorage.STORAGE_LIMIT;

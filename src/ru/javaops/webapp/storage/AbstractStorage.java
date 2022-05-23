@@ -7,19 +7,19 @@ import ru.javaops.webapp.model.Resume;
 public abstract class AbstractStorage implements Storage {
 
     public final void update(Resume r) {
-        doUpdate(getNotExistKey(r.getUuid()), r);
+        doUpdate(getExistKey(r.getUuid()), r);
     }
 
     public final void save(Resume r) {
-        doSave(getExistKey(r.getUuid()), r);
+        doSave(getNotExistKey(r.getUuid()), r);
     }
 
     public final Resume get(String uuid) {
-        return doGet(getNotExistKey(uuid));
+        return doGet(getExistKey(uuid));
     }
 
     public final void delete(String uuid) {
-        doDelete(getNotExistKey(uuid));
+        doDelete(getExistKey(uuid));
     }
 
     protected abstract Object getSearchKey(String searchKey);
@@ -32,7 +32,7 @@ public abstract class AbstractStorage implements Storage {
 
     protected abstract Resume doGet(Object key);
 
-    protected Object getExistKey(String uuid) {
+    protected Object getNotExistKey(String uuid) {
         Object key = getSearchKey(uuid);
         if (isExist(key)) {
             throw new ExistStorageException(uuid);
@@ -40,7 +40,7 @@ public abstract class AbstractStorage implements Storage {
         return key;
     }
 
-    protected Object getNotExistKey(String uuid) {
+    protected Object getExistKey(String uuid) {
         Object key = getSearchKey(uuid);
         if (!isExist(key)) {
             throw new NotExistStorageException(uuid);
