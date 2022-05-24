@@ -1,13 +1,14 @@
 package ru.javaops.webapp;
 
 import ru.javaops.webapp.model.Resume;
-import ru.javaops.webapp.storage.*;
+import ru.javaops.webapp.storage.SortedArrayStorage;
+import ru.javaops.webapp.storage.Storage;
 
 /**
  * Test for your ru.javaops.webapp.storage.ArrayStorage implementation
  */
 public class MainTestArrayStorage {
-//    static final Storage ARRAY_STORAGE = new ArrayStorage();
+    //    static final Storage ARRAY_STORAGE = new ArrayStorage();
     static final Storage ARRAY_STORAGE = new SortedArrayStorage();
 
     public static void main(String[] args) {
@@ -41,7 +42,7 @@ public class MainTestArrayStorage {
 
     static void printAll() {
         System.out.println("\nGet All");
-        for (Resume r : ARRAY_STORAGE.getAll()) {
+        for (Resume r : ARRAY_STORAGE.getAllSorted()) {
             System.out.println(r);
         }
     }

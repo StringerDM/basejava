@@ -3,11 +3,12 @@ package ru.javaops.webapp.storage;
 import ru.javaops.webapp.model.Resume;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ListStorage extends AbstractStorage {
-
-    private final List<Resume> storage = new ArrayList<>();
+public class MapResumeStorage extends AbstractStorage {
+    private final Map<String, Resume> storage = new HashMap<>();
 
     @Override
     public void clear() {
@@ -19,45 +20,44 @@ public class ListStorage extends AbstractStorage {
         return storage.size();
     }
 
-
     @Override
     protected Object getSearchKey(String uuid) {
-        for (Resume r : storage) {
-            if (r.getUuid().equals(uuid)) {
-                return storage.indexOf(r);
-            }
+        if (storage.containsKey(uuid)) {
+            return storage.get(uuid);
         }
-        return -1;
+        return null;
     }
 
     @Override
     protected void doSave(Object searchKey, Resume r) {
-        storage.add(r);
+        storage.put(r.getUuid(), r);
     }
 
     @Override
     protected void doDelete(Object searchKey) {
-        storage.remove((int) searchKey);
+        Resume resume = (Resume) searchKey;
+        storage.remove(resume.getUuid());
     }
 
     @Override
     protected void doUpdate(Object searchKey, Resume r) {
-        doDelete(searchKey);
-        doSave(searchKey, r);
+        Resume resume = (Resume) searchKey;
+        doSave(resume.getUuid(), r);
     }
 
     @Override
     protected Resume doGet(Object searchKey) {
-        return storage.get((Integer) searchKey);
+        Resume resume = (Resume) searchKey;
+        return storage.get(resume.getUuid());
     }
 
     @Override
     protected List<Resume> getList() {
-        return storage;
+        return new ArrayList<>(storage.values());
     }
 
     @Override
     protected boolean isExist(Object searchKey) {
-        return (int) searchKey >= 0;
+        return storage.containsValue((Resume) searchKey);
     }
 }

@@ -8,16 +8,17 @@ import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.model.Resume;
 
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractStorageTest {
     private static final String UUID_1 = "uuid1";
     private static final String UUID_2 = "uuid2";
     private static final String UUID_3 = "uuid3";
     private static final String UUID_4 = "uuid4";
-    private static final Resume RESUME_1 = new Resume(UUID_1);
-    private static final Resume RESUME_2 = new Resume(UUID_2);
-    private static final Resume RESUME_3 = new Resume(UUID_3);
-    private static final Resume RESUME_4 = new Resume(UUID_4);
+    private static final Resume RESUME_1 = new Resume(UUID_1, "Соловьев Александр");
+    private static final Resume RESUME_2 = new Resume(UUID_2, "Федотова Полина");
+    private static final Resume RESUME_3 = new Resume(UUID_3, "Федотова Полина");
+    private static final Resume RESUME_4 = new Resume(UUID_4, "Романова Кира");
     private static final String UUID_NOT_EXIST = "dummy";
     protected final Storage storage;
 
@@ -37,12 +38,11 @@ public abstract class AbstractStorageTest {
     public void clear() {
         storage.clear();
         assertSize(0);
-        Assert.assertArrayEquals(new Resume[0], storage.getAll());
     }
 
     @Test
     public void update() {
-        Resume r = new Resume(UUID_1);
+        Resume r = new Resume(UUID_1, "Ворона Александр");
         storage.update(r);
         Assert.assertSame(r, storage.get(UUID_1));
     }
@@ -93,14 +93,11 @@ public abstract class AbstractStorageTest {
     }
 
     @Test
-    public void getAll() {
-        Resume[] resumes = storage.getAll();
-        assertSize(resumes.length);
-        Arrays.sort(resumes);
-        Assert.assertArrayEquals(new Resume[]{RESUME_1, RESUME_2, RESUME_3}, resumes);
-        assertGet(resumes[0]);
-        assertGet(resumes[1]);
-        assertGet(resumes[2]);
+    public void getAllSorted() {
+        List<Resume> resumes = storage.getAllSorted();
+        assertSize(resumes.size());
+        List<Resume> expectedResumes = Arrays.asList(RESUME_1, RESUME_2, RESUME_3);
+        Assert.assertEquals(expectedResumes, resumes);
     }
 
     @Test

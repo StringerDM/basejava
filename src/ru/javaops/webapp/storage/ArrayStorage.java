@@ -6,9 +6,9 @@ package ru.javaops.webapp.storage;
 public class ArrayStorage extends AbstractArrayStorage {
 
     @Override
-    protected Object getSearchKey(String searchKey) {
+    protected Object getSearchKey(String uuid) {
         for (int i = 0; i < size; i++) {
-            if (storage[i].getUuid().equals(searchKey)) {
+            if (storage[i].getUuid().equals(uuid)) {
                 return i;
             }
         }
