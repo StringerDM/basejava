@@ -29,27 +29,27 @@ public class MapStorage extends AbstractStorage {
     }
 
     @Override
-    protected void doSave(Object key, Resume r) {
-        storage.put((String) key, r);
+    protected void doSave(Object searchKey, Resume r) {
+        storage.put((String) searchKey, r);
     }
 
     @Override
-    protected void doDelete(Object key) {
-        storage.remove((String) key);
+    protected void doDelete(Object searchKey) {
+        storage.remove((String) searchKey);
     }
 
     @Override
-    protected void doUpdate(Object key, Resume r) {
-        doSave(key, r);
+    protected void doUpdate(Object searchKey, Resume r) {
+        doSave(searchKey, r);
     }
 
     @Override
-    protected Resume doGet(Object key) {
-        return storage.get((String) key);
+    protected Resume doGet(Object searchKey) {
+        return storage.get((String) searchKey);
     }
 
     @Override
-    protected boolean isExist(Object key) {
-        return storage.containsKey((String) key);
+    protected boolean isExist(Object searchKey) {
+        return storage.containsKey((String) searchKey);
     }
 }
