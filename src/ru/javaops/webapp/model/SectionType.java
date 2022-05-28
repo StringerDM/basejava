@@ -1,8 +1,8 @@
 package ru.javaops.webapp.model;
 
 public enum SectionType {
-    PERSONAL("Личные качества"),
     OBJECTIVE("Позиция"),
+    PERSONAL("Личные качества"),
     ACHIEVEMENT("Достижения"),
     QUALIFICATIONS("Квалификация"),
     EXPERIENCE("Опыт работы"),
@@ -17,4 +17,5 @@ public enum SectionType {
     public String getTitle() {
         return title;
     }
+
 }
