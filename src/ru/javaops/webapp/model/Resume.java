@@ -12,8 +12,8 @@ public class Resume implements Comparable<Resume> {
     // Unique identifier
     private final String uuid;
     private final String fullName;
-    public Map<SectionType, AbstractSection> sections = new HashMap<>();
-    public Map<ContactType, String> contacts = new HashMap<>();
+    private final Map<SectionType, AbstractSection> sections = new HashMap<>();
+    private final Map<ContactType, String> contacts = new HashMap<>();
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -32,6 +32,22 @@ public class Resume implements Comparable<Resume> {
 
     public String getFullName() {
         return fullName;
+    }
+
+    public String getContact(ContactType type) {
+        return contacts.get(type);
+    }
+
+    public void setContact(ContactType type, String contact) {
+        contacts.put(type, contact);
+    }
+
+    public AbstractSection getSection(SectionType type) {
+        return sections.get(type);
+    }
+
+    public void setSection(SectionType type, AbstractSection abstractSection) {
+        sections.put(type, abstractSection);
     }
 
     @Override
@@ -55,7 +71,6 @@ public class Resume implements Comparable<Resume> {
     @Override
     public int compareTo(Resume o) {
         return uuid.compareTo(o.uuid);
-
     }
 
     @Override

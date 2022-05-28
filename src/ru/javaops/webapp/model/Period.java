@@ -3,10 +3,10 @@ package ru.javaops.webapp.model;
 import java.time.LocalDate;
 
 public class Period {
-    public LocalDate start;
-    public LocalDate end;
-    public String title;
-    public String description;
+    private final LocalDate start;
+    private final LocalDate end;
+    private final String title;
+    private final String description;
 
     public Period(LocalDate start, LocalDate end, String title, String description) {
         this.start = start;
