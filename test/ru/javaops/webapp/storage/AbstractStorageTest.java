@@ -10,15 +10,17 @@ import ru.javaops.webapp.model.Resume;
 import java.util.Arrays;
 import java.util.List;
 
+import static ru.javaops.webapp.ResumeTestData.createTestResume;
+
 public abstract class AbstractStorageTest {
     private static final String UUID_1 = "uuid1";
     private static final String UUID_2 = "uuid2";
     private static final String UUID_3 = "uuid3";
     private static final String UUID_4 = "uuid4";
-    private static final Resume RESUME_1 = new Resume(UUID_1, "Соловьев Александр");
-    private static final Resume RESUME_2 = new Resume(UUID_2, "Федотова Полина");
-    private static final Resume RESUME_3 = new Resume(UUID_3, "Федотова Полина");
-    private static final Resume RESUME_4 = new Resume(UUID_4, "Романова Кира");
+    private static final Resume RESUME_1 = createTestResume(UUID_1, "Соловьев Александр");
+    private static final Resume RESUME_2 = createTestResume(UUID_2, "Федотова Полина");
+    private static final Resume RESUME_3 = createTestResume(UUID_3, "Федотова Полина");
+    private static final Resume RESUME_4 = createTestResume(UUID_4, "Романова Кира");
     private static final String UUID_NOT_EXIST = "dummy";
     protected final Storage storage;
 

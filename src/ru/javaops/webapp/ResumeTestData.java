@@ -13,6 +13,19 @@ import static ru.javaops.webapp.model.SectionType.*;
 public class ResumeTestData {
     public static void main(String[] args) {
         Resume resume = new Resume("Медведев Дмитрий");
+        resume = createTestResume(resume.getUuid(), resume.getFullName());
+
+        System.out.println(resume.getFullName());
+        for (ContactType contact : ContactType.values()) {
+            System.out.println(contact.getTitle() + " : " + resume.getContact(contact));
+        }
+        for (SectionType section : SectionType.values()) {
+            System.out.println(section.getTitle() + " : " + resume.getSection(section));
+        }
+    }
+
+    public static Resume createTestResume(String uuid, String fullName) {
+        Resume resume = new Resume(uuid, fullName);
 
         resume.setContact(PHONE, "+7(999) 435-23-45");
         resume.setContact(SKYPE, "dimamedvedev");
@@ -62,14 +75,8 @@ public class ResumeTestData {
         OrganizationSection educationSection = new OrganizationSection(organisations1);
         resume.setSection(EDUCATION, educationSection);
 
-        System.out.println(resume.getFullName());
-
-        for (ContactType contact : ContactType.values()) {
-            System.out.println(contact.getTitle() + " : " + resume.getContact(contact));
-        }
-
-        for (SectionType section : SectionType.values()) {
-            System.out.println(section.getTitle() + " : " + resume.getSection(section));
-        }
+        return resume;
     }
+
+
 }
