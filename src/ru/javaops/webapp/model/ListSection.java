@@ -7,6 +7,7 @@ public class ListSection extends AbstractSection {
     private final List<String> strings;
 
     public ListSection(List<String> strings) {
+        Objects.requireNonNull(strings, "items must not be null");
         this.strings = strings;
     }
 
@@ -26,11 +27,11 @@ public class ListSection extends AbstractSection {
 
         ListSection that = (ListSection) o;
 
-        return Objects.equals(strings, that.strings);
+        return strings.equals(that.strings);
     }
 
     @Override
     public int hashCode() {
-        return strings != null ? strings.hashCode() : 0;
+        return strings.hashCode();
     }
 }

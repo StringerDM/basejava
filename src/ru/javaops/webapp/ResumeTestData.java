@@ -14,13 +14,13 @@ public class ResumeTestData {
     public static void main(String[] args) {
         Resume resume = new Resume("Медведев Дмитрий");
 
-        resume.setContact(TELEPHONE, "+7(999) 435-23-45");
+        resume.setContact(PHONE, "+7(999) 435-23-45");
         resume.setContact(SKYPE, "dimamedvedev");
-        resume.setContact(EMAIL, "stringer-mdm@yandex.ru");
+        resume.setContact(MAIL, "stringer-mdm@yandex.ru");
         resume.setContact(LINKEDIN, "some link");
         resume.setContact(GITHUB, "some link");
         resume.setContact(STACKOVERFLOW, "some link");
-        resume.setContact(HOMEPAGE, "some link");
+        resume.setContact(HOME_PAGE, "some link");
 
         resume.setSection(OBJECTIVE, new TextSection("Нашальнике ГАДиВСУ"));
         resume.setSection(PERSONAL, new TextSection("Учу Java каждый день"));

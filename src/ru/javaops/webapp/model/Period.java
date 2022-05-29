@@ -10,15 +10,13 @@ public class Period {
     private final String description;
 
     public Period(LocalDate start, LocalDate end, String title, String description) {
+        Objects.requireNonNull(start, "organizations must not be null");
+        Objects.requireNonNull(end, "organizations must not be null");
+        Objects.requireNonNull(title, "organizations must not be null");
         this.start = start;
         this.end = end;
         this.title = title;
-        if (description != null) {
-            this.description = description;
-        } else {
-            this.description = "";
-        }
-
+        this.description = description;
     }
 
     public LocalDate getStart() {
@@ -49,18 +47,18 @@ public class Period {
 
         Period period = (Period) o;
 
-        if (!Objects.equals(start, period.start)) return false;
-        if (!Objects.equals(end, period.end)) return false;
-        if (!Objects.equals(title, period.title)) return false;
+        if (!start.equals(period.start)) return false;
+        if (!end.equals(period.end)) return false;
+        if (!title.equals(period.title)) return false;
         return Objects.equals(description, period.description);
     }
 
     @Override
     public int hashCode() {
-        int result = start != null ? start.hashCode() : 0;
-        result = 31 * result + (end != null ? end.hashCode() : 0);
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + description.hashCode();
+        int result = start.hashCode();
+        result = 31 * result + end.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
 }
