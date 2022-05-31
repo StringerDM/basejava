@@ -1,14 +1,18 @@
 package ru.javaops.webapp.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static ru.javaops.webapp.util.DateUtil.*;
+import static ru.javaops.webapp.util.DateUtil.NOW;
+import static ru.javaops.webapp.util.DateUtil.of;
 
-public class Organization {
+public class Organization implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Link homePage;
     private final List<Period> periods;
 
@@ -24,8 +28,6 @@ public class Organization {
         this.homePage = homePage;
         this.periods = periods;
     }
-
-
 
     public Link getHomePage() {
         return homePage;
@@ -58,7 +60,8 @@ public class Organization {
         return result;
     }
 
-    public static class Period {
+    public static class Period implements Serializable {
+
         private final LocalDate start;
         private final LocalDate end;
         private final String title;

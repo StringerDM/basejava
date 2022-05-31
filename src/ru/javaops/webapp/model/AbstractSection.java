@@ -1,4 +1,6 @@
 package ru.javaops.webapp.model;
 
-public class AbstractSection {
+import java.io.Serializable;
+
+public class AbstractSection implements Serializable {
 }
