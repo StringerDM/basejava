@@ -10,8 +10,8 @@ public class MainFile {
 
     public static void printAllFileNames(String directoryPath) {
         File file = new File(directoryPath);
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
+        File[] files = file.listFiles();
+        if (files != null) {
             for (File fl : files) {
                 if (fl.isFile()) {
                     System.out.println(fl.getName());
