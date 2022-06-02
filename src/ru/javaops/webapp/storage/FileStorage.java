@@ -2,6 +2,7 @@ package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
+import ru.javaops.webapp.storage.serialisation_strategy.SerialisationStrategy;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.Objects;
 
 public class FileStorage extends AbstractStorage<File> {
     private final File directory;
-    private SerialisationStrategy serialisationStrategy;
+    private final SerialisationStrategy serialisationStrategy;
 
     protected FileStorage(File directory, SerialisationStrategy serialisationStrategy) {
         Objects.requireNonNull(directory, "directory must not be null");
@@ -21,10 +22,6 @@ public class FileStorage extends AbstractStorage<File> {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not readable/writable");
         }
         this.directory = directory;
-        this.serialisationStrategy = serialisationStrategy;
-    }
-
-    public void setSerialisationStrategy(SerialisationStrategy serialisationStrategy) {
         this.serialisationStrategy = serialisationStrategy;
     }
 
@@ -70,12 +67,9 @@ public class FileStorage extends AbstractStorage<File> {
 
     @Override
     protected List<Resume> doCopyAll() {
-        File[] files = directory.listFiles();
-        if (files == null) {
-            throw new StorageException("Directory read error", directory.getName());
-        }
+        File[] files = getAllFiles();
         List<Resume> resumes = new ArrayList<>(files.length);
-        for (File file : files) {
+        for (File file : getAllFiles()) {
             resumes.add(doGet(file));
         }
         return resumes;
@@ -88,21 +82,21 @@ public class FileStorage extends AbstractStorage<File> {
 
     @Override
     public void clear() {
-        File[] files = directory.listFiles();
-        if (files == null) {
-            throw new StorageException("Directory read error", directory.getName());
-        }
-        for (File file : files) {
+        for (File file : getAllFiles()) {
             doDelete(file);
         }
     }
 
     @Override
     public int size() {
-        String[] files = directory.list();
+        return getAllFiles().length;
+    }
+
+    private File[] getAllFiles() {
+        File[] files = directory.listFiles();
         if (files == null) {
             throw new StorageException("Directory read error", directory.getName());
         }
-        return files.length;
+        return files;
     }
 }

@@ -2,6 +2,7 @@ package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
+import ru.javaops.webapp.storage.serialisation_strategy.SerialisationStrategy;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,10 +11,11 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PathStorage extends AbstractStorage<Path> {
     private final Path directory;
-    private SerialisationStrategy serialisationStrategy;
+    private final SerialisationStrategy serialisationStrategy;
 
     protected PathStorage(String dir, SerialisationStrategy serialisationStrategy) {
         directory = Paths.get(dir);
@@ -24,28 +26,14 @@ public class PathStorage extends AbstractStorage<Path> {
         this.serialisationStrategy = serialisationStrategy;
     }
 
-    public void setSerialisationStrategy(SerialisationStrategy serialisationStrategy) {
-        this.serialisationStrategy = serialisationStrategy;
-    }
-
     @Override
     public void clear() {
-        try {
-            Files.list(directory).forEach(this::doDelete);
-        } catch (IOException e) {
-            throw new StorageException("Path delete error", null);
-        }
+        getAllFiles().forEach(this::doDelete);
     }
 
     @Override
     public int size() {
-        int size;
-        try {
-            size = (int) Files.list(directory).count();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return size;
+        return (int) getAllFiles().count();
     }
 
     @Override
@@ -97,12 +85,14 @@ public class PathStorage extends AbstractStorage<Path> {
 
     @Override
     protected List<Resume> doCopyAll() {
-        List<Resume> paths;
+        return getAllFiles().map(this::doGet).collect(Collectors.toList());
+    }
+
+    private Stream<Path> getAllFiles() {
         try {
-            paths = Files.list(directory).map(this::doGet).collect(Collectors.toList());
+            return Files.list(directory);
         } catch (IOException e) {
-            throw new StorageException("Directory read error", null);
+            throw new RuntimeException(e);
         }
-        return paths;
     }
 }
