@@ -2,9 +2,9 @@ package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.storage.serialisation_strategy.ObjectStreamStrategy;
 
-public class FileStorageTest extends AbstractStorageTest {
+public class ObjectFileStorageTest extends AbstractStorageTest {
 
-    public FileStorageTest() {
+    public ObjectFileStorageTest() {
         super(new FileStorage(STORAGE_DIR, new ObjectStreamStrategy()));
     }
 }

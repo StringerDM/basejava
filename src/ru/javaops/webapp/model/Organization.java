@@ -1,5 +1,10 @@
 package ru.javaops.webapp.model;
 
+import ru.javaops.webapp.util.LocalDateAdapter;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
@@ -10,11 +15,15 @@ import java.util.Objects;
 import static ru.javaops.webapp.util.DateUtil.NOW;
 import static ru.javaops.webapp.util.DateUtil.of;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Organization implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Link homePage;
-    private final List<Period> periods;
+    private Link homePage;
+    private List<Period> periods;
+
+    public Organization() {
+    }
 
     public Organization(String name, String url, Period... periods) {
         this(new Link(name, url), Arrays.asList(periods));
@@ -60,12 +69,18 @@ public class Organization implements Serializable {
         return result;
     }
 
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class Period implements Serializable {
 
-        private final LocalDate start;
-        private final LocalDate end;
-        private final String title;
-        private final String description;
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
+        private LocalDate start;
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
+        private LocalDate end;
+        private String title;
+        private String description;
+
+        public Period() {
+        }
 
         public Period(int starYear, Month startMonth, String title, String description) {
             this(of(starYear, startMonth), NOW, title, description);
