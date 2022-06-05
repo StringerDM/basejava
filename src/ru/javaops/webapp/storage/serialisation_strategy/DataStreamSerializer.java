@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class DataStreamSerializer implements SerialisationStrategy {
 
+
     @Override
     public void serialize(Resume r, OutputStream os) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(os)) {
@@ -26,22 +27,17 @@ public class DataStreamSerializer implements SerialisationStrategy {
             for (Map.Entry<SectionType, AbstractSection> entry : sections.entrySet()) {
                 dos.writeUTF(entry.getKey().name());
                 AbstractSection section = entry.getValue();
+                dos.writeUTF(section.getClass().getSimpleName());
                 if (section instanceof TextSection) {
-                    TextSection textSection = ((TextSection) section);
-                    dos.writeUTF(textSection.getClass().getSimpleName());
-                    dos.writeUTF(textSection.getContent());
+                    dos.writeUTF(((TextSection) section).getContent());
                 } else if (section instanceof ListSection) {
-                    ListSection listSection = ((ListSection) section);
-                    dos.writeUTF(listSection.getClass().getSimpleName());
-                    List<String> strings = listSection.getStrings();
+                    List<String> strings = ((ListSection) section).getStrings();
                     dos.writeInt(strings.size());
                     for (String s : strings) {
                         dos.writeUTF(s);
                     }
                 } else if (section instanceof OrganizationSection) {
-                    OrganizationSection organizationSection = ((OrganizationSection) section);
-                    dos.writeUTF(organizationSection.getClass().getSimpleName());
-                    List<Organization> organizations = organizationSection.getOrganisations();
+                    List<Organization> organizations = ((OrganizationSection) section).getOrganisations();
                     dos.writeInt(organizations.size());
                     writeOrganizationSection(organizations, dos);
                 }
@@ -52,9 +48,7 @@ public class DataStreamSerializer implements SerialisationStrategy {
     @Override
     public Resume deserialize(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
-            String uuid = dis.readUTF();
-            String fullName = dis.readUTF();
-            Resume resume = new Resume(uuid, fullName);
+            Resume resume = new Resume(dis.readUTF(), dis.readUTF());
             int size = dis.readInt();
             for (int i = 0; i < size; i++) {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
@@ -63,18 +57,17 @@ public class DataStreamSerializer implements SerialisationStrategy {
             for (int i = 0; i < sectionsSize; i++) {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 String section = dis.readUTF();
-                if (section.equals("TextSection")) {
+                if ("TextSection".equals(section)) {
                     resume.addSection(sectionType, new TextSection(dis.readUTF()));
-                } else if (section.equals("ListSection")) {
+                } else if ("ListSection".equals(section)) {
                     ListSection listSection = new ListSection();
-                    int size1 = dis.readInt();
-                    for (int j = 0; j < size1; j++) {
+                    int listSize = dis.readInt();
+                    for (int j = 0; j < listSize; j++) {
                         listSection.addString(dis.readUTF());
                     }
                     resume.addSection(sectionType, listSection);
-                } else if (section.equals("OrganizationSection")) {
-                    size = dis.readInt();
-                    resume.addSection(sectionType, readOrganizationSection(size, dis));
+                } else if ("OrganizationSection".equals(section)) {
+                    resume.addSection(sectionType, readOrganizationSection(dis.readInt(), dis));
                 }
             }
             return resume;
