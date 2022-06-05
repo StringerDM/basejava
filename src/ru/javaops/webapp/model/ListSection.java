@@ -1,5 +1,6 @@
 package ru.javaops.webapp.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -7,7 +8,7 @@ import java.util.Objects;
 public class ListSection extends AbstractSection {
     private static final long serialVersionUID = 1L;
 
-    private List<String> strings;
+    private List<String> strings = new ArrayList<>();
 
     public ListSection() {
     }
@@ -23,6 +24,10 @@ public class ListSection extends AbstractSection {
 
     public List<String> getStrings() {
         return strings;
+    }
+
+    public void addString(String string) {
+        this.strings.add(string);
     }
 
     @Override

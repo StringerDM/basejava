@@ -46,6 +46,11 @@ public class Organization implements Serializable {
         return periods;
     }
 
+    public void addPeriod(LocalDate start, LocalDate end, String title, String description) {
+        Period period = new Period(start, end, title, description);
+        this.periods.add(period);
+    }
+
     @Override
     public String toString() {
         return homePage + "\n" + periods;

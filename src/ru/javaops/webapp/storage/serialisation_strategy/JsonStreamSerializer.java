@@ -6,7 +6,7 @@ import ru.javaops.webapp.util.JsonParser;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class JsonStreamStrategy implements SerialisationStrategy {
+public class JsonStreamSerializer implements SerialisationStrategy {
 
     @Override
     public void serialize(Resume r, OutputStream os) throws IOException {

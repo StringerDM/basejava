@@ -5,7 +5,7 @@ import ru.javaops.webapp.model.Resume;
 
 import java.io.*;
 
-public class ObjectStreamStrategy implements SerialisationStrategy {
+public class ObjectStreamSerializer implements SerialisationStrategy {
 
     @Override
     public void serialize(Resume r, OutputStream os) throws IOException {
