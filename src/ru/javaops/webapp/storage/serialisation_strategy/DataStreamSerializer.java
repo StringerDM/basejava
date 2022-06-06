@@ -4,12 +4,21 @@ import ru.javaops.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+@FunctionalInterface
+interface CustomConsumer<T> {
+    void accept(T t, DataOutputStream dos) throws IOException;
+
+}
+
+@FunctionalInterface
+interface CustomBiConsumer<K, V> {
+    void accept(K k, V v, DataOutputStream dos) throws IOException;
+
+}
 
 public class DataStreamSerializer implements SerialisationStrategy {
-
 
     @Override
     public void serialize(Resume r, OutputStream os) throws IOException {
@@ -18,30 +27,31 @@ public class DataStreamSerializer implements SerialisationStrategy {
             dos.writeUTF(r.getFullName());
             Map<ContactType, String> contacts = r.getContacts();
             dos.writeInt(contacts.size());
-            for (Map.Entry<ContactType, String> entry : contacts.entrySet()) {
-                dos.writeUTF(entry.getKey().name());
-                dos.writeUTF(entry.getValue());
-            }
+            writeWithException(contacts, dos, (k, v, d) -> {
+                d.writeUTF(k.name());
+                d.writeUTF(v);
+            });
             Map<SectionType, AbstractSection> sections = r.getSections();
             dos.writeInt(sections.size());
-            for (Map.Entry<SectionType, AbstractSection> entry : sections.entrySet()) {
-                dos.writeUTF(entry.getKey().name());
-                AbstractSection section = entry.getValue();
-                dos.writeUTF(section.getClass().getSimpleName());
-                if (section instanceof TextSection) {
-                    dos.writeUTF(((TextSection) section).getContent());
-                } else if (section instanceof ListSection) {
-                    List<String> strings = ((ListSection) section).getStrings();
-                    dos.writeInt(strings.size());
-                    for (String s : strings) {
-                        dos.writeUTF(s);
-                    }
-                } else if (section instanceof OrganizationSection) {
-                    List<Organization> organizations = ((OrganizationSection) section).getOrganisations();
-                    dos.writeInt(organizations.size());
-                    writeOrganizationSection(organizations, dos);
+            writeWithException(sections, dos, (k, v, d) -> {
+                d.writeUTF(k.name());
+                String section = v.getClass().getSimpleName();
+                d.writeUTF(section);
+                switch (section) {
+                    case "TextSection":
+                        d.writeUTF(((TextSection) v).getContent());
+                        break;
+                    case "ListSection":
+                        List<String> strings = ((ListSection) v).getStrings();
+                        d.writeInt(strings.size());
+                        writeWithException(strings, d, (s, d1) -> d1.writeUTF(s));
+                        break;
+                    case "OrganizationSection":
+                        List<Organization> organizations = ((OrganizationSection) v).getOrganisations();
+                        d.writeInt(organizations.size());
+                        writeOrganizationSection(organizations, d);
                 }
-            }
+            });
         }
     }
 
@@ -57,17 +67,21 @@ public class DataStreamSerializer implements SerialisationStrategy {
             for (int i = 0; i < sectionsSize; i++) {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 String section = dis.readUTF();
-                if ("TextSection".equals(section)) {
-                    resume.addSection(sectionType, new TextSection(dis.readUTF()));
-                } else if ("ListSection".equals(section)) {
-                    ListSection listSection = new ListSection();
-                    int listSize = dis.readInt();
-                    for (int j = 0; j < listSize; j++) {
-                        listSection.addString(dis.readUTF());
-                    }
-                    resume.addSection(sectionType, listSection);
-                } else if ("OrganizationSection".equals(section)) {
-                    resume.addSection(sectionType, readOrganizationSection(dis.readInt(), dis));
+                switch (section) {
+                    case "TextSection":
+                        resume.addSection(sectionType, new TextSection(dis.readUTF()));
+                        break;
+                    case "ListSection":
+                        ListSection listSection = new ListSection();
+                        int listSize = dis.readInt();
+                        for (int j = 0; j < listSize; j++) {
+                            listSection.addString(dis.readUTF());
+                        }
+                        resume.addSection(sectionType, listSection);
+                        break;
+                    case "OrganizationSection":
+                        resume.addSection(sectionType, readOrganizationSection(dis.readInt(), dis));
+                        break;
                 }
             }
             return resume;
@@ -75,22 +89,20 @@ public class DataStreamSerializer implements SerialisationStrategy {
     }
 
     private void writeOrganizationSection(List<Organization> organizations, DataOutputStream dos) throws IOException {
-        for (Organization org : organizations) {
-            dos.writeUTF(org.getHomePage().getName());
-            dos.writeUTF(org.getHomePage().getUrl());
+        writeWithException(organizations, dos, (org, d) -> {
+            d.writeUTF(org.getHomePage().getName());
+            String url = org.getHomePage().getUrl() != null ? org.getHomePage().getUrl() : "null";
+            d.writeUTF(url);
             List<Organization.Period> periods = org.getPeriods();
-            dos.writeInt(periods.size());
-            for (Organization.Period period : org.getPeriods()) {
-                dos.writeUTF(period.getStart().toString());
-                dos.writeUTF(period.getEnd().toString());
-                dos.writeUTF(period.getTitle());
-                if (period.getDescription() != null){
-                    dos.writeUTF(period.getDescription());
-                } else {
-                    dos.writeUTF("null");
-                }
-            }
-        }
+            d.writeInt(periods.size());
+            writeWithException(org.getPeriods(), d, (p, d1) -> {
+                d1.writeUTF(p.getStart().toString());
+                d1.writeUTF(p.getEnd().toString());
+                d1.writeUTF(p.getTitle());
+                String description = p.getDescription() != null ? p.getDescription() : "null";
+                d1.writeUTF(description);
+            });
+        });
     }
 
     private OrganizationSection readOrganizationSection(int size, DataInputStream dis) throws IOException {
@@ -98,6 +110,7 @@ public class DataStreamSerializer implements SerialisationStrategy {
         for (int i = 0; i < size; i++) {
             String name = dis.readUTF();
             String url = dis.readUTF();
+            url = url.equals("null") ? null : url;
             Organization organization = new Organization(name, url, new ArrayList<>());
             int periodsSize = dis.readInt();
             for (int j = 0; j < periodsSize; j++) {
@@ -105,13 +118,33 @@ public class DataStreamSerializer implements SerialisationStrategy {
                 LocalDate end = LocalDate.parse(dis.readUTF());
                 String title = dis.readUTF();
                 String description = dis.readUTF();
-                if (description.equals("null")) {
-                    description = null;
-                }
+                description = description.equals("null") ? null : description;
                 organization.addPeriod(start, end, title, description);
             }
             organizationSection.addOrganisation(organization);
         }
         return organizationSection;
+    }
+
+    private <T> void writeWithException(Collection<T> collection, DataOutputStream dos, CustomConsumer<T> consumer) throws IOException {
+        Objects.requireNonNull(collection);
+        for (T t : collection) {
+            consumer.accept(t, dos);
+        }
+    }
+
+    private <K, V> void writeWithException(Map<K, V> map, DataOutputStream dos, CustomBiConsumer<K, V> biConsumer) throws IOException {
+        Objects.requireNonNull(map);
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            K k;
+            V v;
+            try {
+                k = entry.getKey();
+                v = entry.getValue();
+            } catch (IllegalStateException ise) {
+                throw new ConcurrentModificationException(ise);
+            }
+            biConsumer.accept(k, v, dos);
+        }
     }
 }

@@ -53,7 +53,7 @@ public class ResumeTestData {
                         "Ведущий инженер", "Ведущий инженер по двигателям и ВСУ"),
                 new Organization.Period(LocalDate.of(2014, 4, 1), LocalDate.of(2015, 7, 29),
                         "Руководитель группы", "Руководитель группы двигателей Rolls-Royce"));
-        Organization organisation1 = new Organization("ОAО АК Трансаеро", "https://www.transaero.ru/", periods1);
+        Organization organisation1 = new Organization("ОAО АК Трансаеро", null, periods1);
         List<Organization> organisations = new ArrayList<>();
         organisations.add(organisation);
         organisations.add(organisation1);
