@@ -4,18 +4,20 @@ import ru.javaops.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @FunctionalInterface
-interface CustomConsumer<T> {
-    void accept(T t, DataOutputStream dos) throws IOException;
+interface CustomWriter<T> {
 
+    void write(T t) throws IOException;
 }
 
 @FunctionalInterface
-interface CustomBiConsumer<K, V> {
-    void accept(K k, V v, DataOutputStream dos) throws IOException;
+interface CustomListWriter<T> {
 
+    void write(List<T> tList) throws IOException;
 }
 
 public class DataStreamSerializer implements SerialisationStrategy {
@@ -25,31 +27,35 @@ public class DataStreamSerializer implements SerialisationStrategy {
         try (DataOutputStream dos = new DataOutputStream(os)) {
             dos.writeUTF(r.getUuid());
             dos.writeUTF(r.getFullName());
-            Map<ContactType, String> contacts = r.getContacts();
-            dos.writeInt(contacts.size());
-            writeWithException(contacts, dos, (k, v, d) -> {
-                d.writeUTF(k.name());
-                d.writeUTF(v);
+            writeWithException(dos, r.getContacts().entrySet(), entry -> {
+                dos.writeUTF(entry.getKey().name());
+                dos.writeUTF(entry.getValue());
             });
-            Map<SectionType, AbstractSection> sections = r.getSections();
-            dos.writeInt(sections.size());
-            writeWithException(sections, dos, (k, v, d) -> {
-                d.writeUTF(k.name());
-                String section = v.getClass().getSimpleName();
-                d.writeUTF(section);
+            writeWithException(dos, r.getSections().entrySet(), entry -> {
+                dos.writeUTF(entry.getKey().name());
+                String section = entry.getValue().getClass().getSimpleName();
+                dos.writeUTF(section);
                 switch (section) {
                     case "TextSection":
-                        d.writeUTF(((TextSection) v).getContent());
+                        dos.writeUTF(((TextSection) entry.getValue()).getContent());
                         break;
                     case "ListSection":
-                        List<String> strings = ((ListSection) v).getStrings();
-                        d.writeInt(strings.size());
-                        writeWithException(strings, d, (s, d1) -> d1.writeUTF(s));
+                        List<String> strings = ((ListSection) entry.getValue()).getStrings();
+                        writeWithException(dos, strings, dos::writeUTF);
                         break;
                     case "OrganizationSection":
-                        List<Organization> organizations = ((OrganizationSection) v).getOrganisations();
-                        d.writeInt(organizations.size());
-                        writeOrganizationSection(organizations, d);
+                        writeWithException(dos, ((OrganizationSection) entry.getValue()).getOrganisations(), org -> {
+                            dos.writeUTF(org.getHomePage().getName());
+                            String url = org.getHomePage().getUrl() != null ? org.getHomePage().getUrl() : "null";
+                            dos.writeUTF(url);
+                            writeWithException(dos, org.getPeriods(), p -> {
+                                dos.writeUTF(p.getStart().toString());
+                                dos.writeUTF(p.getEnd().toString());
+                                dos.writeUTF(p.getTitle());
+                                String description = p.getDescription() != null ? p.getDescription() : "null";
+                                dos.writeUTF(description);
+                            });
+                        });
                 }
             });
         }
@@ -59,92 +65,61 @@ public class DataStreamSerializer implements SerialisationStrategy {
     public Resume deserialize(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
             Resume resume = new Resume(dis.readUTF(), dis.readUTF());
-            int size = dis.readInt();
-            for (int i = 0; i < size; i++) {
-                resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
-            }
-            int sectionsSize = dis.readInt();
-            for (int i = 0; i < sectionsSize; i++) {
+            readWithException(dis, resume, r -> r.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF()));
+            readWithException(dis, resume, r -> {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 String section = dis.readUTF();
                 switch (section) {
                     case "TextSection":
-                        resume.addSection(sectionType, new TextSection(dis.readUTF()));
+                        r.addSection(sectionType, new TextSection(dis.readUTF()));
                         break;
                     case "ListSection":
-                        ListSection listSection = new ListSection();
-                        int listSize = dis.readInt();
-                        for (int j = 0; j < listSize; j++) {
-                            listSection.addString(dis.readUTF());
-                        }
-                        resume.addSection(sectionType, listSection);
+                        resume.addSection(sectionType, new ListSection(
+                                readToListWithException(dis, new ArrayList<>(), l -> l.add(dis.readUTF()))));
                         break;
                     case "OrganizationSection":
-                        resume.addSection(sectionType, readOrganizationSection(dis.readInt(), dis));
+                        resume.addSection(sectionType, new OrganizationSection(readToListWithException(dis, new ArrayList<>(),
+                                organizations -> {
+                                    String name = dis.readUTF();
+                                    String url = dis.readUTF();
+                                    url = url.equals("null") ? null : url;
+                                    Organization organization = new Organization(name, url,
+                                            readToListWithException(dis, new ArrayList<>(), periods -> {
+                                                LocalDate start = LocalDate.parse(dis.readUTF());
+                                                LocalDate end = LocalDate.parse(dis.readUTF());
+                                                String title = dis.readUTF();
+                                                String description = dis.readUTF();
+                                                description = description.equals("null") ? null : description;
+                                                periods.add(new Organization.Period(start, end, title, description));
+                                            }));
+                                    organizations.add(organization);
+                                })));
                         break;
                 }
-            }
+            });
             return resume;
         }
     }
 
-    private void writeOrganizationSection(List<Organization> organizations, DataOutputStream dos) throws IOException {
-        writeWithException(organizations, dos, (org, d) -> {
-            d.writeUTF(org.getHomePage().getName());
-            String url = org.getHomePage().getUrl() != null ? org.getHomePage().getUrl() : "null";
-            d.writeUTF(url);
-            List<Organization.Period> periods = org.getPeriods();
-            d.writeInt(periods.size());
-            writeWithException(org.getPeriods(), d, (p, d1) -> {
-                d1.writeUTF(p.getStart().toString());
-                d1.writeUTF(p.getEnd().toString());
-                d1.writeUTF(p.getTitle());
-                String description = p.getDescription() != null ? p.getDescription() : "null";
-                d1.writeUTF(description);
-            });
-        });
+    private <T> void writeWithException(DataOutputStream dos, Collection<T> collection, CustomWriter<T> writer) throws IOException {
+        dos.writeInt(collection.size());
+        for (T element : collection) {
+            writer.write(element);
+        }
     }
 
-    private OrganizationSection readOrganizationSection(int size, DataInputStream dis) throws IOException {
-        OrganizationSection organizationSection = new OrganizationSection();
+    private <T> void readWithException(DataInputStream dis, T t, CustomWriter<T> customWriter) throws IOException {
+        int size = dis.readInt();
         for (int i = 0; i < size; i++) {
-            String name = dis.readUTF();
-            String url = dis.readUTF();
-            url = url.equals("null") ? null : url;
-            Organization organization = new Organization(name, url, new ArrayList<>());
-            int periodsSize = dis.readInt();
-            for (int j = 0; j < periodsSize; j++) {
-                LocalDate start = LocalDate.parse(dis.readUTF());
-                LocalDate end = LocalDate.parse(dis.readUTF());
-                String title = dis.readUTF();
-                String description = dis.readUTF();
-                description = description.equals("null") ? null : description;
-                organization.addPeriod(start, end, title, description);
-            }
-            organizationSection.addOrganisation(organization);
-        }
-        return organizationSection;
-    }
-
-    private <T> void writeWithException(Collection<T> collection, DataOutputStream dos, CustomConsumer<T> consumer) throws IOException {
-        Objects.requireNonNull(collection);
-        for (T t : collection) {
-            consumer.accept(t, dos);
+            customWriter.write(t);
         }
     }
 
-    private <K, V> void writeWithException(Map<K, V> map, DataOutputStream dos, CustomBiConsumer<K, V> biConsumer) throws IOException {
-        Objects.requireNonNull(map);
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            K k;
-            V v;
-            try {
-                k = entry.getKey();
-                v = entry.getValue();
-            } catch (IllegalStateException ise) {
-                throw new ConcurrentModificationException(ise);
-            }
-            biConsumer.accept(k, v, dos);
+    private <T> List<T> readToListWithException(DataInputStream dis, List<T> tList, CustomListWriter<T> listWriter) throws IOException {
+        int size = dis.readInt();
+        for (int i = 0; i < size; i++) {
+            listWriter.write(tList);
         }
+        return tList;
     }
 }
