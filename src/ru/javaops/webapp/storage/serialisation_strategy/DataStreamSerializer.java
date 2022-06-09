@@ -32,18 +32,20 @@ public class DataStreamSerializer implements SerialisationStrategy {
                 dos.writeUTF(entry.getValue());
             });
             writeWithException(dos, r.getSections().entrySet(), entry -> {
-                dos.writeUTF(entry.getKey().name());
-                String section = entry.getValue().getClass().getSimpleName();
-                dos.writeUTF(section);
+                SectionType section = entry.getKey();
+                dos.writeUTF(section.name());
                 switch (section) {
-                    case "TextSection":
+                    case OBJECTIVE:
+                    case PERSONAL:
                         dos.writeUTF(((TextSection) entry.getValue()).getContent());
                         break;
-                    case "ListSection":
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
                         List<String> strings = ((ListSection) entry.getValue()).getStrings();
                         writeWithException(dos, strings, dos::writeUTF);
                         break;
-                    case "OrganizationSection":
+                    case EXPERIENCE:
+                    case EDUCATION:
                         writeWithException(dos, ((OrganizationSection) entry.getValue()).getOrganisations(), org -> {
                             dos.writeUTF(org.getHomePage().getName());
                             String url = org.getHomePage().getUrl() != null ? org.getHomePage().getUrl() : "null";
@@ -67,30 +69,31 @@ public class DataStreamSerializer implements SerialisationStrategy {
             Resume resume = new Resume(dis.readUTF(), dis.readUTF());
             readWithException(dis, resume, r -> r.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF()));
             readWithException(dis, resume, r -> {
-                SectionType sectionType = SectionType.valueOf(dis.readUTF());
-                String section = dis.readUTF();
+                SectionType section = SectionType.valueOf(dis.readUTF());
                 switch (section) {
-                    case "TextSection":
-                        r.addSection(sectionType, new TextSection(dis.readUTF()));
+                    case OBJECTIVE:
+                    case PERSONAL:
+                        r.addSection(section, new TextSection(dis.readUTF()));
                         break;
-                    case "ListSection":
-                        resume.addSection(sectionType, new ListSection(
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
+                        resume.addSection(section, new ListSection(
                                 readToListWithException(dis, new ArrayList<>(), l -> l.add(dis.readUTF()))));
                         break;
-                    case "OrganizationSection":
-                        resume.addSection(sectionType, new OrganizationSection(readToListWithException(dis, new ArrayList<>(),
+                    case EXPERIENCE:
+                    case EDUCATION:
+                        resume.addSection(section, new OrganizationSection(readToListWithException(dis, new ArrayList<>(),
                                 organizations -> {
                                     String name = dis.readUTF();
                                     String url = dis.readUTF();
-                                    url = url.equals("null") ? null : url;
-                                    Organization organization = new Organization(name, url,
+                                    Organization organization = new Organization(name, url.equals("null") ? null : url,
                                             readToListWithException(dis, new ArrayList<>(), periods -> {
                                                 LocalDate start = LocalDate.parse(dis.readUTF());
                                                 LocalDate end = LocalDate.parse(dis.readUTF());
                                                 String title = dis.readUTF();
                                                 String description = dis.readUTF();
-                                                description = description.equals("null") ? null : description;
-                                                periods.add(new Organization.Period(start, end, title, description));
+                                                periods.add(new Organization.Period(start, end, title,
+                                                        description.equals("null") ? null : description));
                                             }));
                                     organizations.add(organization);
                                 })));
