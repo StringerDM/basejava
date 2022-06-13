@@ -16,6 +16,7 @@ public class MainStream {
 
         List<Integer> integers = Arrays.asList(1, 5, 3, 8, 6, 4, 3, 7, 5, 6, 9, 2, 34, 765, 23, 54, 76);
         System.out.println(oddOrEven(integers));
+        System.out.println(oddOrEvenOptional_1(integers));
         System.out.println(oddOrEvenOptional(integers));
     }
 
@@ -23,8 +24,7 @@ public class MainStream {
         return Arrays.stream(values)
                 .distinct()
                 .sorted()
-                .reduce((n1, n2) -> n1 * 10 + n2)
-                .orElse(0);
+                .reduce(0, (n1, n2) -> n1 * 10 + n2);
     }
 
     public static List<Integer> oddOrEven(List<Integer> integers) {
@@ -32,6 +32,18 @@ public class MainStream {
         return integers.stream()
                 .filter(n -> oddOrEven == (n % 2 == 0))
                 .collect(Collectors.toList());
+    }
+
+    public static List<Integer> oddOrEvenOptional_1(List<Integer> integers) {
+        Map<Boolean, List<Integer>> oddOrEvenMap = new HashMap<>();
+        Boolean oddOrEven = integers.stream()
+                .peek(n -> oddOrEvenMap.merge(n % 2 == 0, new ArrayList<>(Collections.singletonList(n)), (l1, l2) -> {
+                    l1.add(n);
+                    return l1;
+                }))
+                .filter(n -> n % 2 != 0)
+                .count() % 2 == 0;
+        return oddOrEvenMap.get(oddOrEven);
     }
 
     public static List<Integer> oddOrEvenOptional(List<Integer> integers) {
