@@ -17,6 +17,7 @@ public class MainStream {
         List<Integer> integers = Arrays.asList(1, 5, 3, 8, 6, 4, 3, 7, 5, 6, 9, 2, 34, 765, 23, 54, 76);
         System.out.println(oddOrEven(integers));
         System.out.println(oddOrEvenOptional_1(integers));
+        System.out.println(oddOrEvenOptional_2(integers));
         System.out.println(oddOrEvenOptional(integers));
     }
 
@@ -35,15 +36,18 @@ public class MainStream {
     }
 
     public static List<Integer> oddOrEvenOptional_1(List<Integer> integers) {
-        Map<Boolean, List<Integer>> oddOrEvenMap = new HashMap<>();
-        Boolean oddOrEven = integers.stream()
-                .peek(n -> oddOrEvenMap.merge(n % 2 == 0, new ArrayList<>(Collections.singletonList(n)), (l1, l2) -> {
-                    l1.add(n);
-                    return l1;
-                }))
-                .filter(n -> n % 2 != 0)
-                .count() % 2 == 0;
-        return oddOrEvenMap.get(oddOrEven);
+        Map<Boolean, Integer> oddAndEvenCountMap = new HashMap<>();
+        return integers.stream()
+                .peek(n -> oddAndEvenCountMap.merge(n % 2 == 0, 0, Integer::sum))
+                .collect(Collectors.partitioningBy(n -> n % 2 == 0))
+                .get(oddAndEvenCountMap.get(false) % 2 != 0);
+    }
+
+    public static List<Integer> oddOrEvenOptional_2(List<Integer> integers) {
+        Map<Boolean, Long> oddOrEvenMap = integers.stream()
+                .collect(Collectors.partitioningBy(n -> (n % 2 == 0), Collectors.counting()));
+        boolean oddOrEven = oddOrEvenMap.get(false) % 2 == 0;
+        return integers.stream().filter(n -> oddOrEven == (n % 2 == 0)).collect(Collectors.toList());
     }
 
     public static List<Integer> oddOrEvenOptional(List<Integer> integers) {
