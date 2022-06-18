@@ -3,6 +3,7 @@ package ru.javaops.webapp.storage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import ru.javaops.webapp.Config;
 import ru.javaops.webapp.exception.ExistStorageException;
 import ru.javaops.webapp.exception.NotExistStorageException;
 import ru.javaops.webapp.model.Resume;
@@ -14,7 +15,7 @@ import java.util.List;
 import static ru.javaops.webapp.ResumeTestData.createTestResume;
 
 public abstract class AbstractStorageTest {
-    protected static final File STORAGE_DIR = new File("E:\\projects\\basejava\\Storage");
+    protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
     private static final String UUID_1 = "uuid1";
     private static final String UUID_2 = "uuid2";
@@ -22,7 +23,7 @@ public abstract class AbstractStorageTest {
     private static final String UUID_4 = "uuid4";
     private static final Resume RESUME_1 = createTestResume(UUID_1, "Соловьев Александр");
     private static final Resume RESUME_2 = createTestResume(UUID_2, "Федотова Полина");
-    private static final Resume RESUME_3 = createTestResume(UUID_3, "Федотова Полина");
+    protected static final Resume RESUME_3 = createTestResume(UUID_3, "Федотова Полина");
     private static final Resume RESUME_4 = createTestResume(UUID_4, "Романова Кира");
     private static final String UUID_NOT_EXIST = "dummy";
 
@@ -35,8 +36,8 @@ public abstract class AbstractStorageTest {
     @Before
     public void setUp() {
         storage.clear();
-        storage.save(RESUME_1);
         storage.save(RESUME_2);
+        storage.save(RESUME_1);
         storage.save(RESUME_3);
     }
 
