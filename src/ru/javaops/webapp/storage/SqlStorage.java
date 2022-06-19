@@ -2,11 +2,12 @@ package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.exception.ExistStorageException;
 import ru.javaops.webapp.exception.NotExistStorageException;
-import ru.javaops.webapp.exception.StorageException;
 import ru.javaops.webapp.model.Resume;
 import ru.javaops.webapp.util.SqlHelper;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,10 @@ public class SqlStorage implements Storage {
             try {
                 return ps.execute();
             } catch (SQLException e) {
-                throw new ExistStorageException(r.getUuid());
+                if ("23505".equals(e.getSQLState())) {
+                    throw new ExistStorageException(r.getUuid());
+                }
+                throw new SQLException(e);
             }
         });
     }
@@ -72,7 +76,7 @@ public class SqlStorage implements Storage {
 
     @Override
     public List<Resume> getAllSorted() {
-        return sqlHelper.execute("SELECT * FROM resume r ORDER BY r.uuid, r.full_name", ps -> {
+        return sqlHelper.execute("SELECT * FROM resume r ORDER BY r.full_name, r.uuid", ps -> {
             ResultSet rs = ps.executeQuery();
             List<Resume> resumes = new ArrayList<>();
             while (rs.next()) {
