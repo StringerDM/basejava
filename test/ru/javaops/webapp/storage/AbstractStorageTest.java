@@ -11,21 +11,23 @@ import ru.javaops.webapp.model.Resume;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static ru.javaops.webapp.ResumeTestData.createTestResume;
+import static ru.javaops.webapp.model.ContactType.PHONE;
 
 public abstract class AbstractStorageTest {
     protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
-    private static final String UUID_1 = "uuid1";
-    private static final String UUID_2 = "uuid2";
-    private static final String UUID_3 = "uuid3";
-    private static final String UUID_4 = "uuid4";
+    private static final String UUID_1 = "70db7010-8e01-414b-b725-c9f32adeb709";
+    private static final String UUID_2 = "229044ce-5078-464c-858a-7ea9ecb6808c";
+    private static final String UUID_3 = "608453a8-65c0-48a3-b2c2-1093ab925706";
+    private static final String UUID_4 = UUID.randomUUID().toString();
+    private static final String UUID_NOT_EXIST = "dummy";
     private static final Resume RESUME_1 = createTestResume(UUID_1, "Соловьев Александр");
     private static final Resume RESUME_2 = createTestResume(UUID_2, "Федотова Полина");
-    protected static final Resume RESUME_3 = createTestResume(UUID_3, "Федотова Полина");
+    private static final Resume RESUME_3 = createTestResume(UUID_3, "Федотова Полина");
     private static final Resume RESUME_4 = createTestResume(UUID_4, "Романова Кира");
-    private static final String UUID_NOT_EXIST = "dummy";
 
     protected final Storage storage;
 
@@ -50,6 +52,9 @@ public abstract class AbstractStorageTest {
     @Test
     public void update() {
         Resume r = new Resume(UUID_1, "Ворона Александр");
+        r.setContacts(RESUME_1.getContacts());
+        r.setSections(RESUME_1.getSections());
+        r.addContact(PHONE, "+7(999) 999-99-99");
         storage.update(r);
         Assert.assertEquals(r, storage.get(UUID_1));
     }

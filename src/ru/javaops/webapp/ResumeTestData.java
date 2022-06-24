@@ -27,13 +27,13 @@ public class ResumeTestData {
     public static Resume createTestResume(String uuid, String fullName) {
         Resume resume = new Resume(uuid, fullName);
 
-//        resume.addContact(PHONE, "+7(999) 435-23-45");
-//        resume.addContact(SKYPE, "dimamedvedev");
-//        resume.addContact(MAIL, "stringer-mdm@yandex.ru");
-//        resume.addContact(LINKEDIN, "some link");
-//        resume.addContact(GITHUB, "some link");
-//        resume.addContact(STACKOVERFLOW, "some link");
-//        resume.addContact(HOME_PAGE, "some link");
+        resume.addContact(PHONE, "+7(999) 435-23-45");
+        resume.addContact(SKYPE, "dimamedvedev");
+        resume.addContact(MAIL, "stringer-mdm@yandex.ru");
+        resume.addContact(LINKEDIN, "some link");
+        resume.addContact(GITHUB, "some link");
+        resume.addContact(STACKOVERFLOW, "some link");
+        resume.addContact(HOME_PAGE, "some link");
 //
 //        resume.addSection(OBJECTIVE, new TextSection("Нашальнике ГАДиВСУ"));
 //        resume.addSection(PERSONAL, new TextSection("Учу Java каждый день"));
