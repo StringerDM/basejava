@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static ru.javaops.webapp.ResumeTestData.createTestResume;
+import static ru.javaops.webapp.model.ContactType.MAIL;
 import static ru.javaops.webapp.model.ContactType.PHONE;
 
 public abstract class AbstractStorageTest {
@@ -54,6 +55,7 @@ public abstract class AbstractStorageTest {
         Resume r = new Resume(UUID_1, "Ворона Александр");
         r.setContacts(RESUME_1.getContacts());
         r.setSections(RESUME_1.getSections());
+        r.getContacts().remove(MAIL);
         r.addContact(PHONE, "+7(999) 999-99-99");
         storage.update(r);
         Assert.assertEquals(r, storage.get(UUID_1));
