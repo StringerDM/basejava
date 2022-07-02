@@ -2,8 +2,6 @@ package ru.javaops.webapp;
 
 import ru.javaops.webapp.model.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,13 +32,13 @@ public class ResumeTestData {
         resume.addContact(GITHUB, "some link");
         resume.addContact(STACKOVERFLOW, "some link");
         resume.addContact(HOME_PAGE, "some link");
-//
-//        resume.addSection(OBJECTIVE, new TextSection("Нашальнике ГАДиВСУ"));
-//        resume.addSection(PERSONAL, new TextSection("Учу Java каждый день"));
-//        List<String> achievementItems = Arrays.asList("Закончил StartJava за 20 дней", "Мог и быстрее");
-//        resume.addSection(ACHIEVEMENT, new ListSection(achievementItems));
-//        List<String> qualificationsItems = Arrays.asList("Инженер", "Java Core");
-//        resume.addSection(QUALIFICATIONS, new ListSection(qualificationsItems));
+
+        resume.addSection(OBJECTIVE, new TextSection("Нашальнике ГАДиВСУ"));
+        resume.addSection(PERSONAL, new TextSection("Учу Java каждый день"));
+        List<String> achievementItems = Arrays.asList("Закончил StartJava за 20 дней", "Мог и быстрее");
+        resume.addSection(ACHIEVEMENT, new ListSection(achievementItems));
+        List<String> qualificationsItems = Arrays.asList("Инженер", "Java Core");
+        resume.addSection(QUALIFICATIONS, new ListSection(qualificationsItems));
 //
 //        List<Organization.Period> periods = Arrays.asList(new Organization.Period(LocalDate.of(2015, 7, 30), LocalDate.now(),
 //                "Нашальнике", "Начальник группы двигателей и ВСУ"));
