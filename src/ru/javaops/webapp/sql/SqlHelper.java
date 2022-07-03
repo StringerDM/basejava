@@ -19,6 +19,7 @@ public class SqlHelper {
         execute(statement, PreparedStatement::execute);
     }
 
+
     public <T> T execute(String statement, SqlExecutor<T> executor) {
         try (Connection conn = connectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -28,30 +29,13 @@ public class SqlHelper {
         }
     }
 
-    public void executeWhile(String uuid, String statement, Connection conn, SqlResultSetExecutor executor) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(statement)) {
-            if (uuid != null) {
-                ps.setString(1, uuid);
-            }
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                executor.execute(rs);
-            }
-        }
-    }
-
-    public void execute(String statement, Connection conn, SqlVoidExecutor executor) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(statement)) {
-            executor.execute(ps);
-        }
-    }
-
-    public void transactionalExecute(SqlTransaction executor) {
+    public <T> T transactionExecute(SqlTransaction<T> executor) {
         try (Connection conn = connectionFactory.getConnection()) {
             try {
                 conn.setAutoCommit(false);
-                executor.execute(conn);
+                T res = executor.execute(conn);
                 conn.commit();
+                return res;
             } catch (SQLException e) {
                 conn.rollback();
                 throw ExceptionUtil.convertException(e);
@@ -60,4 +44,46 @@ public class SqlHelper {
             throw new StorageException(e);
         }
     }
+
+
+
+//    public void executeWhile(String uuid, String statement, Connection conn, SqlResultSetExecutor executor) throws SQLException {
+//        try (PreparedStatement ps = conn.prepareStatement(statement)) {
+//            if (uuid != null) {
+//                ps.setString(1, uuid);
+//            }
+//            ResultSet rs = ps.executeQuery();
+//            while (rs.next()) {
+//                executor.execute(rs);
+//            }
+//        }
+//    }
+
+//    public void execute(String statement, Connection conn, SqlVoidExecutor executor) throws SQLException {
+//        try (PreparedStatement ps = conn.prepareStatement(statement)) {
+//            executor.execute(ps);
+//        }
+//    }
+
+//    public void transactionalExecute(SqlTransaction executor) {
+//        try (Connection conn = connectionFactory.getConnection()) {
+//            try {
+//                conn.setAutoCommit(false);
+//                executor.execute(conn);
+//                conn.commit();
+//            } catch (SQLException e) {
+//                conn.rollback();
+//                throw ExceptionUtil.convertException(e);
+//            }
+//        } catch (SQLException e) {
+//            throw new StorageException(e);
+//        }
+//    }
+
+
+
+
+
+
+
 }
