@@ -1,8 +1,12 @@
 package ru.javaops.webapp.storage;
 
 import ru.javaops.webapp.exception.NotExistStorageException;
-import ru.javaops.webapp.model.*;
+import ru.javaops.webapp.model.AbstractSection;
+import ru.javaops.webapp.model.ContactType;
+import ru.javaops.webapp.model.Resume;
+import ru.javaops.webapp.model.SectionType;
 import ru.javaops.webapp.sql.SqlHelper;
+import ru.javaops.webapp.util.JsonParser;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -62,20 +66,19 @@ public class SqlStorage implements Storage {
                     throw new NotExistStorageException(r.getUuid());
                 }
             }
-            deleteFromTable(r.getUuid(), "contact");
-            deleteFromTable(r.getUuid(), "section");
+            deleteFromTable(r.getUuid(), "contact", conn);
+            deleteFromTable(r.getUuid(), "section", conn);
             saveContacts(r, conn);
             saveSections(r, conn);
             return null;
         });
     }
 
-    private void deleteFromTable(String uuid, String table) {
-        sqlHelper.execute(String.format("DELETE FROM %s WHERE resume_uuid=?", table), ps -> {
+    private void deleteFromTable(String uuid, String table, Connection conn) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(String.format("DELETE FROM %s WHERE resume_uuid=?", table))) {
             ps.setString(1, uuid);
             ps.execute();
-            return null;
-        });
+        }
     }
 
     @Override
@@ -157,20 +160,23 @@ public class SqlStorage implements Storage {
             ps.setString(2, r.getUuid());
             for (Map.Entry<SectionType, AbstractSection> e : r.getSections().entrySet()) {
                 ps.setString(3, e.getKey().name());
-                switch (e.getKey()) {
-                    case OBJECTIVE:
-                    case PERSONAL:
-                        ps.setString(1, ((TextSection) e.getValue()).getContent());
-                        break;
-                    case ACHIEVEMENT:
-                    case QUALIFICATIONS:
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (String s : ((ListSection) e.getValue()).getStrings()) {
-                            stringBuilder.append(s).append("\n");
-                        }
-                        ps.setString(1, stringBuilder.toString());
-                        break;
-                }
+                AbstractSection section = e.getValue();
+                ps.setString(1, JsonParser.write(section, AbstractSection.class));
+
+//                switch (e.getKey()) {
+//                    case OBJECTIVE:
+//                    case PERSONAL:
+//                        ps.setString(1, ((TextSection) e.getValue()).getContent());
+//                        break;
+//                    case ACHIEVEMENT:
+//                    case QUALIFICATIONS:
+//                        StringBuilder stringBuilder = new StringBuilder();
+//                        for (String s : ((ListSection) e.getValue()).getStrings()) {
+//                            stringBuilder.append(s).append("\n");
+//                        }
+//                        ps.setString(1, stringBuilder.toString());
+//                        break;
+//                }
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -187,18 +193,21 @@ public class SqlStorage implements Storage {
 
     private void addSection(Resume r, ResultSet rs) throws SQLException {
         String value = rs.getString("value");
-        SectionType section = SectionType.valueOf(rs.getString("type"));
         if (value != null) {
-            switch (section) {
-                case OBJECTIVE:
-                case PERSONAL:
-                    r.addSection(section, new TextSection(value));
-                    break;
-                case ACHIEVEMENT:
-                case QUALIFICATIONS:
-                    r.addSection(section, new ListSection(value.split("\n")));
-                    break;
-            }
+            SectionType section = SectionType.valueOf(rs.getString("type"));
+            r.addSection(section, JsonParser.read(value, AbstractSection.class));
+//
+//
+//            switch (section) {
+//                case OBJECTIVE:
+//                case PERSONAL:
+//                    r.addSection(section, new TextSection(value));
+//                    break;
+//                case ACHIEVEMENT:
+//                case QUALIFICATIONS:
+//                    r.addSection(section, new ListSection(value.split("\n")));
+//                    break;
         }
     }
 }
+

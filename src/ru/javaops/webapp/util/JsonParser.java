@@ -20,4 +20,15 @@ public class JsonParser {
         GSON.toJson(object, writer);
     }
 
+    public static <T> T read(String value, Class<T> clazz) {
+        return GSON.fromJson(value, clazz);
+    }
+
+    public static <T> String write(T obj) {
+        return GSON.toJson(obj);
+    }
+
+    public static <T> String write(T object, Class<T> clazz) {
+        return GSON.toJson(object, clazz);
+    }
 }

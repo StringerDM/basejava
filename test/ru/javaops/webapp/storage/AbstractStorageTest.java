@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static ru.javaops.webapp.ResumeTestData.createTestResume;
+import static ru.javaops.webapp.TestData.*;
 import static ru.javaops.webapp.model.ContactType.MAIL;
 import static ru.javaops.webapp.model.ContactType.PHONE;
 import static ru.javaops.webapp.model.SectionType.OBJECTIVE;
@@ -23,15 +24,7 @@ import static ru.javaops.webapp.model.SectionType.PERSONAL;
 public abstract class AbstractStorageTest {
     protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
-    private static final String UUID_1 = "70db7010-8e01-414b-b725-c9f32adeb709";
-    private static final String UUID_2 = "229044ce-5078-464c-858a-7ea9ecb6808c";
-    private static final String UUID_3 = "608453a8-65c0-48a3-b2c2-1093ab925706";
-    private static final String UUID_4 = UUID.randomUUID().toString();
-    private static final String UUID_NOT_EXIST = "dummy";
-    private static final Resume RESUME_1 = createTestResume(UUID_1, "Соловьев Александр");
-    private static final Resume RESUME_2 = createTestResume(UUID_2, "Федотова Полина");
-    private static final Resume RESUME_3 = createTestResume(UUID_3, "Федотова Полина");
-    private static final Resume RESUME_4 = createTestResume(UUID_4, "Романова Кира");
+
 
     protected final Storage storage;
 
