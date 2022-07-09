@@ -30,7 +30,7 @@ public class ResumeTestData {
         resume.addContact(MAIL, "stringer-mdm@yandex.ru");
         resume.addContact(LINKEDIN, "some link");
         resume.addContact(GITHUB, "some link");
-        resume.addContact(STACKOVERFLOW, "some link");
+        resume.addContact(STATCKOVERFLOW, "some link");
         resume.addContact(HOME_PAGE, "some link");
 
         resume.addSection(OBJECTIVE, new TextSection("Нашальнике ГАДиВСУ"));
