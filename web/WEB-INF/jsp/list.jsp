@@ -1,8 +1,7 @@
-
-<%@ page import="java.util.List" %>
-<%@ page import="ru.javaops.webapp.model.Resume" %>
 <%@ page import="ru.javaops.webapp.model.ContactType" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -17,18 +16,13 @@
             <th>Имя</th>
             <th>Email</th>
         </tr>
-        <%
-            for (Resume resume : (List<Resume>) request.getAttribute("resumes")) {
-        %>
-        <tr>
-            <td><a href="resume?uuid=<%=resume.getUuid()%>"><%=resume.getFullName()%></a>
-            </td>
-            <td><%=resume.getContact(ContactType.MAIL)%>
-            </td>
-        </tr>
-        <%
-            }
-        %>
+        <c:forEach items="${resumes}" var="resume">
+            <jsp:useBean id="resume" type="ru.javaops.webapp.model.Resume"/>
+            <tr>
+                <td><a href="resume?uuid=${resume.uuid}">${resume.fullName}</a></td>
+                <td>${resume.getContact(ContactType.MAIL)}</td>
+            </tr>
+        </c:forEach>
     </table>
 </section>
 <jsp:include page="fragments/footer.jsp"/>
