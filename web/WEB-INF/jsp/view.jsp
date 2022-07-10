@@ -19,6 +19,16 @@
         </c:forEach>
     <p>
 </section>
+<hr>
+<section>
+    <p>
+        <c:forEach var="sectionEntry" items="${resume.sections}">
+            <jsp:useBean id="sectionEntry"
+                         type="java.util.Map.Entry<ru.javaops.webapp.model.SectionType, ru.javaops.webapp.model.AbstractSection>"/>
+                <%=sectionEntry.getKey().toHtml(sectionEntry.getValue())%>
+        </c:forEach>
+    <p>
+</section>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
 </html>

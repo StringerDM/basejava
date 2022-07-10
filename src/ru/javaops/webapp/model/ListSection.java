@@ -32,7 +32,9 @@ public class ListSection extends AbstractSection {
 
     @Override
     public String toString() {
-        return strings.toString();
+        StringBuilder str = new StringBuilder();
+        strings.forEach(s -> str.append(s).append("\n"));
+        return str.toString();
     }
 
     @Override

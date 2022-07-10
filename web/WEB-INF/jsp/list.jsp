@@ -11,6 +11,7 @@
 <body>
 <jsp:include page="fragments/header.jsp"/>
 <section>
+    <h3><a href="resume?action=create"><img src="img/add.png"></a>Добавить резюме</h3>
     <table border="1" cellpadding="8" cellspacing="0">
         <tr>
             <th>Имя</th>
