@@ -2,7 +2,6 @@
 out
 *.iml
 log
-*.xml
 lesson
 /lib/
 /Storage/
