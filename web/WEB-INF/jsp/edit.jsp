@@ -18,7 +18,7 @@
         <dl>
             <dt>Имя:</dt>
             <dd><input type="text" name="fullName" required title="Имя должно начинаться с буквы"
-                       pattern="[\w][\w\s]*" size=50 value="${resume.fullName}"></dd>
+                       pattern="[\S][A-Za-zА-Яа-яЁё\s]*" size=50 value="${resume.fullName}"></dd>
         </dl>
         <h3>Контакты:</h3>
         <c:forEach var="type" items="<%=ContactType.values()%>">
