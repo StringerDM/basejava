@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ResumeServlet extends HttpServlet {
     private Storage storage;
@@ -57,9 +60,6 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
         String fullName = request.getParameter("fullName");
-        if (fullName.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }
         Resume r;
         if (uuid.isEmpty()) {
             r = new Resume(fullName);
@@ -98,7 +98,10 @@ public class ResumeServlet extends HttpServlet {
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        r.addSection(type, new ListSection(value.split("\n")));
+                        List<String> lines = Arrays.stream(value.split("\n"))
+                                .filter(s -> !s.trim().isEmpty())
+                                .collect(Collectors.toList());
+                        r.addSection(type, new ListSection(lines));
                 }
             } else {
                 r.getSections().remove(type);
