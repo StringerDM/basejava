@@ -2,6 +2,7 @@ package ru.javaops.webapp.model;
 
 import ru.javaops.webapp.util.DateUtil;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -78,11 +79,11 @@ public enum SectionType {
                     .append("\">").append(homePage.getName()).append("</a></h3>");
 
             List<Organization.Period> periods = org.getPeriods();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
             for (Organization.Period period : periods) {
                 strings.append("<p style=\"padding-left: 80px;\">");
                 String dates = period.getStart().format(formatter) + " - " +
-                        (period.getEnd().isEqual(DateUtil.NOW) ? "сейчас" :
+                        ((period.getEnd().isEqual(LocalDate.now()) || period.getEnd().isAfter(LocalDate.now())) ? "сейчас" :
                                 period.getEnd().format(formatter));
                 strings.append(dates).append("<br/>").append(period.getTitle()).append("</p>");
                 if (period.getDescription() != null) {

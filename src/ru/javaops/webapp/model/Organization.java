@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -19,8 +21,8 @@ import static ru.javaops.webapp.util.DateUtil.of;
 public class Organization implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Link homePage;
-    private List<Period> periods;
+    private Link homePage = new Link();
+    private List<Period> periods = new ArrayList<>();
 
     public Organization() {
     }
@@ -44,6 +46,10 @@ public class Organization implements Serializable {
 
     public List<Period> getPeriods() {
         return periods;
+    }
+
+    public void addPeriod(Period period) {
+        this.periods.add(period);
     }
 
     public void addPeriod(LocalDate start, LocalDate end, String title, String description) {
@@ -76,6 +82,7 @@ public class Organization implements Serializable {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Period implements Serializable {
+        private transient final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
 
         @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate start;
@@ -96,9 +103,6 @@ public class Organization implements Serializable {
         }
 
         public Period(LocalDate start, LocalDate end, String title, String description) {
-            Objects.requireNonNull(start, "organizations must not be null");
-            Objects.requireNonNull(end, "organizations must not be null");
-            Objects.requireNonNull(title, "organizations must not be null");
             this.start = start;
             this.end = end;
             this.title = title;
@@ -111,6 +115,20 @@ public class Organization implements Serializable {
 
         public LocalDate getEnd() {
             return end;
+        }
+
+        public String getFormattedStart() {
+            if (end == null) {
+                return null;
+            }
+            return start.format(formatter);
+        }
+
+        public String getFormattedEnd() {
+            if (end == null) {
+                return null;
+            }
+            return end.format(formatter);
         }
 
         public String getTitle() {
