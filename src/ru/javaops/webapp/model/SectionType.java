@@ -41,10 +41,11 @@ public enum SectionType {
     }
 
     public static String toLink(String href, String title) {
-        if (href == null) {
-            return "<h4>" + title + "</h4>";
+        String headStart = "<h3 style=\"text-align: left; padding-left: 80px;\">";
+        if (href == null || href.trim().isEmpty()) {
+            return headStart + title + "</h3>";
         }
-        return "<h4><a href='" + href + "'>" + title + "</a></h4>";
+        return headStart + "<a href='" + href + "'>" + title + "</a></h3>";
     }
 
     public String getTitle() {
@@ -75,9 +76,7 @@ public enum SectionType {
         List<Organization> organizations = ((OrganizationSection) section).getOrganisations();
         for (Organization org : organizations) {
             Link homePage = org.getHomePage();
-            strings.append("<h3 style=\"text-align: left; padding-left: 80px;\"><a href=\"").append(homePage.getUrl())
-                    .append("\">").append(homePage.getName()).append("</a></h3>");
-
+            strings.append(toLink(homePage.getUrl(), homePage.getName()));
             List<Organization.Period> periods = org.getPeriods();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
             for (Organization.Period period : periods) {
